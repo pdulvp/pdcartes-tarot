@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=PDCartes Tarot
+GenericName=Tarot
+Comment=Le tarot français sur tapis vert, à quatre autour de la table
+Exec=pdcartes-tarot
+Icon=pdcartes-tarot
+Terminal=false
+Categories=Game;CardGame;
+Keywords=tarot;cartes;jeu;atout;excuse;chien;pli;contrat;tapis;
+# Rapproché du WM_CLASS d'une fenêtre sous X11 ou XWayland. Sous Wayland c'est
+# l'app_id posé par setDesktopFileName() qui est rapproché à la place, et il
+# est rapproché de ce fichier par son nom.
+StartupWMClass=pdcartes-tarot

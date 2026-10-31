@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Fichier généré par tools/make-icon.py. Ne pas modifier directement. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"
+     viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="felt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2d7447"/>
+      <stop offset="1" stop-color="#143620"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240"
+        rx="56" fill="url(#felt)"/>
+  <g transform="translate(14.429,8.378) scale(0.233)">
+    <path d="M 136,517.6 V 228 H 840 V 517.6 H 710.4 V 332 H 536 V 800 H 408 V 332 H 265.6 v 185.6 z" fill="#102b1a" fill-opacity="0.45"
+          transform="translate(6.292,12.584)"/>
+    <path d="M 136,517.6 V 228 H 840 V 517.6 H 710.4 V 332 H 536 V 800 H 408 V 332 H 265.6 v 185.6 z" fill="#e2bc6b"/>
+  </g>
+</svg>

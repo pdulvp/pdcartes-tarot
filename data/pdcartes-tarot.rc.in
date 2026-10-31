@@ -1,0 +1,59 @@
+// Ressources Windows de l'application : l'icône affichée par l'explorateur,
+// ainsi que le nom, la version et la description présentés dans la feuille
+// de propriétés et dans le gestionnaire des tâches.
+//
+// Ce fichier est le modèle dont CMake génère le script de ressources dans
+// l'arbre de compilation (voir CMakeLists.txt) ; le fichier généré ne doit
+// pas être modifié.
+//
+// Il est l'équivalent, pour Windows, du fichier `pdcartes-tarot.desktop`
+// destiné aux environnements de bureau Linux. Les deux sont réunis dans ce
+// répertoire pour cette raison.
+
+// Icône de l'application. CMake substitue ici un chemin absolu : un chemin
+// relatif serait résolu par windres depuis son répertoire de travail, qui
+// n'est pas celui de ce fichier. Les séparateurs sont des barres obliques,
+// que windres accepte sur les deux plateformes, alors que les contre-obliques
+// d'un chemin Windows devraient être doublées.
+//
+// L'identifiant vaut `1` : l'explorateur Windows affiche, pour un programme,
+// le groupe d'icônes dont l'identifiant est le plus petit.
+1 ICON "@PDCARTES_TAROT_ICO@"
+
+// Informations de version. `FILEVERSION` n'admet que quatre entiers :
+// l'horodatage de compilation n'y figure donc pas, conformément à la règle
+// du dépôt selon laquelle une version publiée est désignée par son seul
+// numéro. Le quatrième champ vaut zéro, trois numéros suffisant ici.
+1 VERSIONINFO
+FILEVERSION    @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,0
+PRODUCTVERSION @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,0
+FILEOS         0x40004L  // VOS_NT_WINDOWS32
+FILETYPE       0x1L      // VFT_APP
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        // 040c désigne le français (France) ; 04b0 vaut 1200, identifiant de
+        // l'UTF-16, car les chaînes d'un bloc de version sont toujours
+        // encodées sur seize bits. L'encodage du présent fichier est en
+        // revanche l'UTF-8, indiqué à windres par l'option `-c 65001`
+        // définie dans CMakeLists.txt.
+        BLOCK "040c04b0"
+        BEGIN
+            VALUE "CompanyName",      "pdulvp"
+            VALUE "FileDescription",  "Le tarot français sur tapis vert, à quatre autour de la table"
+            VALUE "FileVersion",      "@PDCARTES_TAROT_VERSION@"
+            VALUE "InternalName",     "pdcartes-tarot"
+            VALUE "LegalCopyright",   "© 2026 pdulvp"
+            VALUE "OriginalFilename", "pdcartes-tarot.exe"
+            VALUE "ProductName",      "PDCartes Tarot"
+            VALUE "ProductVersion",   "@PDCARTES_TAROT_VERSION@"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        // Même couple langue/encodage que le bloc ci-dessus, exprimé sous
+        // forme numérique. Les deux déclarations doivent concorder, faute de
+        // quoi Windows ne retrouve pas les chaînes.
+        VALUE "Translation", 0x040c, 1200
+    END
+END

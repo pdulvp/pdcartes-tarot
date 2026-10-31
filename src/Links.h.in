@@ -1,0 +1,19 @@
+#pragma once
+
+#include <QString>
+
+// Adresses affichées par l'application.
+//
+// Ce fichier est le modèle dont CMake génère `Links.h` lors de la
+// configuration, à partir des valeurs de `data/links.ini`. Ni le modèle ni le
+// fichier généré ne doivent être modifiés pour changer une adresse : c'est
+// `data/links.ini` qu'il faut éditer.
+//
+// Les adresses sont compilées dans le binaire plutôt que lues au démarrage,
+// comme l'est le numéro de version. Aucun fichier n'est donc à installer
+// auprès de l'application, ni à rechercher sur le disque à l'exécution.
+
+// Éditeur permettant de créer un jeu de cartes. Affiché au bas des pages
+// « Les cartes » et « Les dos » des réglages, les deux pages où l'on
+// sélectionne un jeu installé.
+inline QString cardEditorUrl() { return QStringLiteral("@PDCARTES_TAROT_LINK_CARD_EDITOR@"); }
