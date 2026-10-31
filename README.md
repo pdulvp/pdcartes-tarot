@@ -167,7 +167,7 @@ chacun donne autant de fois.
 | Le tour de table | 4 | chacun donne une fois |
 | Le tapis vert | 8 | le tarot tel qu'on le joue |
 | Le cercle | 12 | de quoi se refaire |
-| La soirée | 20 | assez pour que les six y apprennent |
+| La soirée | 20 | les six y apprennent |
 
 La partie s'arrête au bout du compte, et c'est celui qui mène qui l'emporte. Les
 donnes annulées ne comptent pas : quand les quatre passent, on redonne.

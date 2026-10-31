@@ -898,7 +898,7 @@ void TablePage::updateActions() {
                  .arg(m_game->multiplier())
                  .arg(whose, pointsText(m_game->teamPoints(kTakerTeam)),
                       pointsText(m_game->takerTarget()),
-                      tr("%n bout(s)", nullptr, m_game->takerBouts())));
+                      countedText(m_game->takerBouts(), tr("bout"), tr("bouts"))));
 }
 
 void TablePage::setState(const QString &text) {
@@ -925,12 +925,13 @@ void TablePage::sayWhatToDo() {
         const int left = kChienSize - m_view->picked().size();
         const int forced = m_game->forcedTrumpsInEcart();
         if (left > 0 && forced > 0) {
-            m_view->say(tr("Encore %n carte(s) à écarter — et il vous faut y mettre %1 "
-                           "atout(s), faute d'autre chose à jeter.",
-                           nullptr, left)
-                            .arg(forced));
+            m_view->say(tr("Encore %1 à écarter — et il vous faut y mettre %2, faute "
+                           "d'autre chose à jeter.")
+                            .arg(countedText(left, tr("carte"), tr("cartes")),
+                                 countedText(forced, tr("atout"), tr("atouts"))));
         } else if (left > 0) {
-            m_view->say(tr("Encore %n carte(s) à écarter : ni roi ni bout.", nullptr, left));
+            m_view->say(tr("Encore %1 à écarter : ni roi ni bout.")
+                            .arg(countedText(left, tr("carte"), tr("cartes"))));
         } else {
             m_view->say(tr("Six cartes de côté : écartez, ou reprenez-en une."));
         }

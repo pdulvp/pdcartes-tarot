@@ -131,6 +131,10 @@ QString pointsText(int halves) {
     return QCoreApplication::translate("cards", "%1,5").arg(whole);
 }
 
+QString countedText(int count, const QString &one, const QString &many) {
+    return QStringLiteral("%1 %2").arg(QString::number(count), count > 1 ? many : one);
+}
+
 int cardPoints(const Card &card) {
     if (!card.valid()) return 0;
     if (isBout(card)) return 9;                 // 4,5 points

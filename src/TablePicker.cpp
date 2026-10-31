@@ -223,7 +223,7 @@ TablePicker::TablePicker(QWidget *parent) : QWidget(parent) {
         tile->setBlurb(kind.blurb);
         tile->setTileSize(kTableTile);
         tile->setOnFelt(true);
-        tile->setCorner(tr("%n donne(s)", nullptr, kind.donnes));
+        tile->setCorner(countedText(kind.donnes, tr("donne"), tr("donnes")));
         const QString id = kind.id;
         connect(tile, &TileButton::clicked, this, [this, id] { Q_EMIT tableChosen(id); });
         m_tiles.append(tile);
@@ -391,7 +391,7 @@ void TablePicker::reread() {
     if (names.isEmpty()) {
         m_rivalNote->setText(tr("Les trois places vont aux moins joués, pour que les six "
                                 "progressent ensemble. Cliquez sur une carte pour inviter "
-                                "quelqu'un : le premier invité s'assoit en face de vous, et "
+                                "quelqu'un : le premier invité s'assoit en face de vous. "
                                 "c'est donc lui qui joue avec vous."));
         return;
     }

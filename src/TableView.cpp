@@ -901,7 +901,7 @@ void TableView::paintSeatPlaque(QPainter *painter, const QRectF &box, int at) {
     mark.setPixelSize(plaqueTextSize(inner.height(), kPlaqueAsideSize, 9));
     painter->setFont(mark);
     const QFontMetricsF markMetrics(mark);
-    const QString shown = tr("%n atout(s)", nullptr, seat.poigneeShown.size());
+    const QString shown = countedText(seat.poigneeShown.size(), tr("atout"), tr("atouts"));
     QRectF said(0, 0, markMetrics.horizontalAdvance(shown) + 14.0, markMetrics.height() + 3.0);
     said.moveBottomRight(QPointF(rightEdge, inner.bottom()));
     painter->setPen(Qt::NoPen);
@@ -1198,7 +1198,8 @@ void TableView::paintSide(QPainter *painter) {
         painter->setPen(scheme.gold);
         painter->drawText(QRectF(inner.left(), y, inner.width(), figureMetrics.height()),
                           Qt::AlignLeft | Qt::AlignVCenter,
-                          tr("%n tombé(s)", nullptr, m_game->takerBouts()));
+                          countedText(m_game->takerBouts(), tr("bout tombé"),
+                                      tr("bouts tombés")));
         painter->setFont(small);
         painter->setPen(blendColours(scheme.feltText, scheme.felt, 0.25));
         painter->drawText(QRectF(inner.left(), y, inner.width(), figureMetrics.height()),
@@ -1264,7 +1265,8 @@ void TableView::paintSide(QPainter *painter) {
         painter->setPen(blendColours(scheme.feltText, scheme.felt, 0.25));
         painter->drawText(
             QRectF(inner.left() + 12.0, y, inner.width() - 12.0, figureMetrics.height()),
-            Qt::AlignRight | Qt::AlignVCenter, tr("%n pli(s)", nullptr, m_game->teamTricks(team)));
+            Qt::AlignRight | Qt::AlignVCenter,
+            countedText(m_game->teamTricks(team), tr("pli"), tr("plis")));
         y += figureMetrics.height() + 7.0;
     }
 

@@ -114,9 +114,9 @@ void ScoreBoard::showDonne(const Tarot *game) {
 
     // Le compte du contrat, dit en entier : c'est la seule chose du tarot
     // qu'il faut avoir comprise, et elle tient en une ligne.
-    m_notes.append(tr("%n bout(s) : il fallait %1 points, le preneur en a fait %2 — %3 %4",
-                      nullptr, done.bouts)
-                       .arg(pointsText(done.target), pointsText(done.points[kTakerTeam]),
+    m_notes.append(tr("%1 : il fallait %2 points, le preneur en a fait %3 — %4 %5")
+                       .arg(countedText(done.bouts, tr("bout"), tr("bouts")),
+                            pointsText(done.target), pointsText(done.points[kTakerTeam]),
                             done.made ? tr("soit") : tr("soit un manque de"),
                             pointsText(std::abs(done.ecart))));
 
@@ -167,8 +167,10 @@ void ScoreBoard::showMatch(const Tarot *game) {
     } else {
         m_headline = m_youWon ? tr("Partie gagnée") : tr("Partie perdue");
     }
-    m_aside = tr("%n donne(s) jouée(s) — vous finissez à %1", nullptr, game->donneNumber())
-                  .arg(signedText(game->seatScore(me)));
+    m_aside = tr("%1 — vous finissez à %2")
+                  .arg(countedText(game->donneNumber(), tr("donne jouée"),
+                                   tr("donnes jouées")),
+                       signedText(game->seatScore(me)));
 
     m_onwards->setText(tr("Rejouer"));
     m_away->setText(tr("Quitter la table"));

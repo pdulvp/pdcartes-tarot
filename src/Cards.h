@@ -131,6 +131,18 @@ QString cardName(const Card &card);    // « le roi de cœur », « l'atout 17 �
 // Des demi-points tels qu'on les lit : « 41 », « 47,5 ».
 QString pointsText(int halves);
 
+// Un nombre et son nom accordé : « 1 donne », « 4 donnes », « 0 bout ».
+//
+// Qt sait accorder tout seul, par `tr("%n ...", nullptr, n)`, mais seulement
+// lorsqu'un catalogue de traduction est chargé : sans catalogue il remplace
+// `%n` et laisse le « (s) » dans la phrase. Le jeu n'est pas traduit -- il est
+// écrit en français -- et l'accord se fait donc ici. Zéro et un prennent le
+// singulier, comme il se doit en français.
+//
+// Elle est posée à côté de `pointsText()`, les deux étant les deux seules
+// façons qu'a le programme d'écrire un nombre.
+QString countedText(int count, const QString &one, const QString &many);
+
 // Ce que la carte rapporte à celui qui ramasse le pli, en demi-points. Une
 // seule table, et elle ne dépend de rien : au tarot une carte vaut ce qu'elle
 // vaut, atout ou non.

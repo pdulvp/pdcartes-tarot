@@ -481,7 +481,8 @@ bool Tarot::setEcart(const QVector<int> &cardIds, QString *why) {
             *why = forced == 0
                        ? tr("On n'écarte un atout que lorsqu'on n'a rien d'autre à jeter.")
                        : tr("Il vous manque des cartes à jeter : l'écart doit contenir "
-                            "exactement %n atout(s).", nullptr, forced);
+                            "exactement %1.")
+                             .arg(countedText(forced, tr("atout"), tr("atouts")));
         }
         return false;
     }

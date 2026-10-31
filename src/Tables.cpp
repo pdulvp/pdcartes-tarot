@@ -15,8 +15,7 @@ const QVector<TableKind> &builtTables() {
         {QStringLiteral("cercle"), QCoreApplication::translate("tables", "Le cercle"),
          QCoreApplication::translate("tables", "Douze donnes : de quoi se refaire"), 12},
         {QStringLiteral("soiree"), QCoreApplication::translate("tables", "La soirée"),
-         QCoreApplication::translate("tables", "Vingt donnes, assez pour que les six y apprennent"),
-         20},
+         QCoreApplication::translate("tables", "Vingt donnes : les six y apprennent"), 20},
     };
     return kinds;
 }
