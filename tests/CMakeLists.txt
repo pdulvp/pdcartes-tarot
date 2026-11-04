@@ -17,6 +17,7 @@ set(_model_tests
     guess        # le cerveau respecte l'appel caché, devinette comprise
     skills       # tempérament et acquises des six, migration des profils
     sheet        # fiche d'un adversaire : édition du tempérament, remises à zéro
+    picker       # menu : ordre des sections, tailles des tuiles
 )
 
 foreach(_t IN LISTS _model_tests)

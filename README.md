@@ -11,7 +11,10 @@ Six joueurs dont l'expérience est gardée d'une séance à la suivante.
 
 ## Jouer
 
-Choisissez une table sur le menu d'ouverture : la partie commence aussitôt. Les
+Le menu d'ouverture va de la table à la partie : d'abord **La table** (3, 4 ou 5
+joueurs), puis **Les joueurs** (invitez ceux que vous voulez, au clic ; au clic
+droit, leur fiche, leur nom, leur remise à zéro), puis **La partie** (une donne,
+le tour de table, le tapis vert…). Un clic sur une table lance aussitôt. Les
 règles sont dans la fenêtre, au bouton **Règles** ou à `F1`.
 
 | | |

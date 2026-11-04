@@ -160,10 +160,46 @@ TablePicker::TablePicker(QWidget *parent) : QWidget(parent) {
     // qui prend la suite.
     rows->addStretch(1);
 
-    // Les six. Avant les tables, bien qu'on puisse partir sans en inviter un
-    // seul : c'est un choix, et un choix passé sous le déclencheur est un
-    // choix qu'on fait après coup, la partie commencée. Au tarot il
-    // compte double -- le premier invité est votre partenaire.
+    // La table d'abord : combien de joueurs s'y assoient, 3, 4 ou 5
+    // (règlement FFT). C'est le choix d'avant la longueur, et il décide de
+    // combien de places il reste sous les invitations : à 5 joueurs le
+    // preneur appelle un roi.
+    QWidget *tableHeading = feltSection(page, tr("La table"));
+    m_headings.append(tableHeading);
+    rows->addWidget(tableHeading);
+    rows->addSpacing(kHeadingGap);
+
+    auto *seatTiles = new QHBoxLayout;
+    seatTiles->setSpacing(kFeltGap);
+    auto *seatGroup = new QButtonGroup(page);
+    seatGroup->setExclusive(true);
+    const int seatOptions[3] = {3, 4, 5};
+    for (const int n : seatOptions) {
+        auto *tile = new TileButton(page);
+        tile->setText(tr("%1 joueurs").arg(n));
+        tile->setBlurb(n == 3  ? tr("24 cartes chacun, chien de 6")
+                        : n == 5 ? tr("15 cartes chacun, chien de 3, appel du roi")
+                                 : tr("18 cartes chacun, chien de 6"));
+        tile->setCorner(QString::number(n));
+        tile->setTileSize(QSize(148, 150));
+        tile->setOnFelt(true);
+        tile->setCheckable(true);
+        tile->setChecked(n == m_seats);
+        connect(tile, &TileButton::clicked, this, [this, n] { setSeats(n); });
+        seatGroup->addButton(tile);
+        m_seatTiles.append(tile);
+        seatTiles->addWidget(tile);
+    }
+    seatTiles->addStretch();
+    rows->addLayout(seatTiles);
+    rows->addSpacing(kSectionGap);
+
+    // Les six, après la table : on choisit d'abord combien on s'assoit, puis
+    // qui on invite -- bien qu'on puisse partir sans en inviter un seul.
+    // C'est un choix, et un choix passé sous le déclencheur est un choix qu'on
+    // fait après coup, la partie commencée. Au tarot il compte double --
+    // à 5 joueurs, le premier invité n'est pas votre partenaire fixe, mais
+    // c'est la place qu'on regarde le plus.
     QWidget *rivalHeading = feltSection(page, tr("Les joueurs"));
     m_headings.append(rivalHeading);
     rows->addWidget(rivalHeading);
@@ -184,8 +220,8 @@ TablePicker::TablePicker(QWidget *parent) : QWidget(parent) {
         // débordent ensemble et la même barre horizontale les rattrape,
         // plutôt que l'une se resserre pendant que l'autre tient bon.
         card->setFixedWidth(kRivalCardWidth);
-        card->setToolTip(tr("Cliquer pour inviter %1 à la table ; clic droit pour le "
-                            "renommer ou le remettre à son niveau de départ.")
+        card->setToolTip(tr("Cliquer pour inviter %1 à la table ; clic droit pour sa "
+                            "fiche, le renommer ou le remettre à son niveau de départ.")
                              .arg(rivalName(rival.id)));
         const QString id = rival.id;
         connect(card, &RivalCard::invitedChanged, this, [this, card, id] {
@@ -212,39 +248,12 @@ TablePicker::TablePicker(QWidget *parent) : QWidget(parent) {
     rows->addWidget(m_rivalNote);
     rows->addSpacing(kSectionGap);
 
-    // Les tables, en dernier : elles ne se choisissent pas, elles partent.
-    QWidget *tableHeading = feltSection(page, tr("La table"));
-    m_headings.append(tableHeading);
-    rows->addWidget(tableHeading);
+    // La partie, en dernier : sa longueur, comptée en donnes. Les tables ne
+    // se choisissent pas, elles partent.
+    QWidget *gameHeading = feltSection(page, tr("La partie"));
+    m_headings.append(gameHeading);
+    rows->addWidget(gameHeading);
     rows->addSpacing(kHeadingGap);
-
-    // Combien de joueurs à la table : 3, 4 ou 5 (règlement FFT). C'est le
-    // choix d'avant la longueur, et il décide de combien de places il reste
-    // sous les invitations : à 5 joueurs le preneur appelle un roi.
-    auto *seatTiles = new QHBoxLayout;
-    seatTiles->setSpacing(kFeltGap);
-    auto *seatGroup = new QButtonGroup(page);
-    seatGroup->setExclusive(true);
-    const int seatOptions[3] = {3, 4, 5};
-    for (const int n : seatOptions) {
-        auto *tile = new TileButton(page);
-        tile->setText(tr("%1 joueurs").arg(n));
-        tile->setBlurb(n == 3  ? tr("24 cartes chacun, chien de 6")
-                        : n == 5 ? tr("15 cartes chacun, chien de 3, appel du roi")
-                                 : tr("18 cartes chacun, chien de 6"));
-        tile->setCorner(QString::number(n));
-        tile->setTileSize(QSize(148, 118));
-        tile->setOnFelt(true);
-        tile->setCheckable(true);
-        tile->setChecked(n == m_seats);
-        connect(tile, &TileButton::clicked, this, [this, n] { setSeats(n); });
-        seatGroup->addButton(tile);
-        m_seatTiles.append(tile);
-        seatTiles->addWidget(tile);
-    }
-    seatTiles->addStretch();
-    rows->addLayout(seatTiles);
-    rows->addSpacing(12);
 
     auto *tiles = new QHBoxLayout;
     tiles->setSpacing(kFeltGap);
@@ -267,12 +276,13 @@ TablePicker::TablePicker(QWidget *parent) : QWidget(parent) {
     // Les gestes qu'on ne devine pas, et rien d'autre : tout le reste est
     // écrit sur la chose elle-même. Au pied des tuiles plutôt qu'au pied de
     // la fenêtre, pour que la ligne tienne à ce qu'elle explique -- et ses
-    // membres dans l'ordre de la page, celui de la table en dernier, qui est
+    // membres dans l'ordre de la page, celui de la partie en premier, qui est
     // celui de ce qu'elle a juste au-dessus.
     m_footer = new QLabel(page);
     m_footer->setWordWrap(true);
-    m_footer->setText(tr("Un clic invite  ·  un clic droit renomme  ·  "
-                         "une table lance la partie"));
+    m_footer->setText(tr("Un clic sur une table lance la partie  ·  "
+                         "un clic invite un joueur  ·  un clic droit sur sa carte "
+                         "lui ouvre sa fiche"));
     rows->addWidget(m_footer);
     rows->addStretch(1);
 
