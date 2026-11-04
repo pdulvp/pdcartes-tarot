@@ -188,6 +188,30 @@ Contract chooseBid(const Tarot &game, int at, const Skill &skill) {
 // et c'est ce qui fait la différence entre dix-huit cartes et dix-huit cartes
 // bien choisies.
 
+Suit chooseCall(const Tarot &game, int at, const Skill &skill) {
+    Q_UNUSED(skill);
+    // On appelle de préférence une couleur dont on ne tient pas la carte
+    // appelée, pour avoir un partenaire ; et parmi celles-là, une couleur où
+    // l'on est court, puisque le partenaire en aura vraisemblablement.
+    const Seat &who = game.seat(at);
+    Suit best = Suit::Pique;
+    int bestLen = 99;
+    for (int s = 0; s < 4; ++s) {
+        const Suit suit = Suit(s);
+        const Card called = game.calledCardFor(suit, at);
+        if (findCard(who.hand, called.id)) continue;   // on s'appellerait soi-même
+        int len = 0;
+        for (const Card &card : who.hand) {
+            if (card.suit == suit) ++len;
+        }
+        if (len < bestLen) {
+            bestLen = len;
+            best = suit;
+        }
+    }
+    return best;
+}
+
 QVector<int> chooseEcart(const Tarot &game, int at, const Skill &skill) {
     const QVector<Card> &hand = game.seat(at).hand;
 

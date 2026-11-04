@@ -48,6 +48,9 @@
 enum class Phase {
     Idle,
     Bidding,
+    // À 5 joueurs, le preneur appelle un roi avant de voir le chien : le
+    // détenteur de ce roi sera son partenaire pour la donne.
+    Appel,
     // Le chien retourné, posé sur le tapis et vu de tous. Une phase à part
     // parce qu'elle s'arrête : tout le monde doit avoir le temps de le lire.
     Chien,
@@ -121,6 +124,7 @@ struct DonneResult {
 
     Contract contract = Contract::Passe;
     int taker = -1;
+    int callee = -1;      // à 5 joueurs, le partenaire appelé ; -1 sinon
 
     int points[kTeamCount] = {0, 0};   // les demi-points ramassés
     int tricks[kTeamCount] = {0, 0};
@@ -169,10 +173,16 @@ public:
     bool withPoignees() const { return m_withPoignees; }
     bool withChelem() const { return m_withChelem; }
 
-    // Les camps de cette donne-là : le preneur d'un côté, les trois autres de
-    // l'autre. Pendant l'enchère il n'y a pas encore de camps, et tout le
-    // monde est compté défenseur.
-    int teamOf(int at) const { return at >= 0 && at == m_taker ? kTakerTeam : kDefenceTeam; }
+    // Les camps de cette donne-là : le preneur d'un côté, les autres de
+    // l'autre — sauf à 5 joueurs avec un appel, où le partenaire appelé est
+    // avec le preneur. Pendant l'enchère il n'y a pas encore de camps, et
+    // tout le monde est compté défenseur.
+    int teamOf(int at) const {
+        if (at < 0) return kDefenceTeam;
+        if (at == m_taker) return kTakerTeam;
+        if (m_seats.size() == 5 && at == m_callee) return kTakerTeam;
+        return kDefenceTeam;
+    }
     static int otherTeam(int team) { return team ^ 1; }
 
     Phase phase() const { return m_phase; }
@@ -201,6 +211,18 @@ public:
     bool pass(QString *why = nullptr);
 
     int taker() const { return m_taker; }
+    // --- L'appel du roi, à 5 joueurs.
+
+    // Le preneur peut-il appeler, et quelles couleurs peut-il appeler ?
+    bool mayCall(int at) const;
+    // La carte appelée pour une couleur : le premier rang (roi, dame,
+    // cavalier, valet) que le preneur ne détient pas en entier.
+    Card calledCardFor(Suit suit, int at) const;
+    // Appelle : pose le rang appelé, trouve le détenteur (chien ou preneur
+    // -> personne ne répond, le preneur joue seul), et passe à la suite.
+    bool callKing(int at, Suit suit, QString *why = nullptr);
+    int callee() const { return m_callee; }
+    Suit calledSuit() const { return m_calledSuit; }
     Contract contract() const { return m_contract; }
     int multiplier() const { return contractMultiplier(m_contract); }
 
@@ -342,6 +364,12 @@ private:
     int m_bidder = -1;
 
     int m_taker = -1;
+    // À 5 joueurs : le partenaire appelé (-1 tant qu'il n'y en a pas, et
+    // quand la carte appelée est au chien ou chez le preneur), la carte
+    // appelée et sa couleur.
+    int m_callee = -1;
+    Suit m_calledSuit = Suit::Pique;
+    int m_calledRank = 0;
     Contract m_contract = Contract::Passe;
     bool m_ecartNeeded = false;
     bool m_chelemAnnounced = false;

@@ -221,7 +221,16 @@ joueurs</b> se choisit aussi sur la page de menu : <b>3, 4 ou 5</b>, selon le
 règlement de la FFT. À 3 joueurs chacun a 24 cartes (données 4 par 4) et le
 chien en a 6 ; à 4, 18 cartes et 6 au chien ; à 5, 15 cartes et 3 au chien.
 Les contrats sont les mêmes, et le preneur est seul contre tous les autres —
-à 5 joueurs, il <b>appelle un roi</b> dont le détenteur devient son partenaire.
+sauf à 5 joueurs : après les enchères et <b>avant de voir le chien</b>, le
+preneur <b>appelle un roi</b> de son choix (une dame s'il a les quatre rois,
+puis un cavalier, puis un valet), et le détenteur de cette carte devient son
+partenaire, l'<b>appelé</b>, pour la donne — sa plaque porte « avec vous »
+quand c'est vous qui prenez. Si la carte appelée est au chien ou chez le
+preneur, il joue seul contre les quatre autres. À l'écart, on ne met ni la
+carte appelée ni sa couleur ; à la première entame, cette couleur est
+interdite sauf si c'est la carte appelée elle-même. La marque se partage alors
+entre les deux attaquants : 2/3 pour le preneur, 1/3 pour l'appelé, et chaque
+défenseur perd une part.
 La longueur n'est pas un détail — sur quatre donnes une garde contre ratée ne
 se rattrape pas ; sur vingt, il y a le temps de tenter une petite sur une main
 courte, et le temps aussi pour que ce que les six adversaires ont appris

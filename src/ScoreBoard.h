@@ -50,6 +50,7 @@ private:
         QString name;
         int hue = 0;
         bool taker = false;
+        bool callee = false;   // à 5 joueurs, le partenaire appelé
         int tricks = 0;      // les plis de son camp
         int points = 0;      // ce que son camp a ramassé, en demi-points
         int gained = 0;      // ce qu'il marque, signé

@@ -813,18 +813,22 @@ void TableView::paintSeatPlaque(QPainter *painter, const QRectF &box, int at) {
 
     // Preneur ou défenseur, écrit en clair dans le coin : au tarot les camps
     // se refont à chaque donne, et c'est la première chose à savoir d'un
-    // joueur avant de poser une carte. Le preneur est seul contre les trois
-    // autres : quand c'est vous qui prenez, les autres sont « contre vous » ;
-    // quand c'est l'un d'eux, les deux autres sont « avec vous ». Posée avant
-    // le nom, parce que c'est elle qui décide de la place qui reste au nom.
+    // joueur avant de poser une carte. Le preneur est seul contre les autres
+    // — sauf à 5 joueurs, où le joueur appelé est avec lui : quand c'est vous
+    // qui prenez, l'appelé est « avec vous » et les autres « contre vous » ;
+    // quand c'est l'un d'eux, les autres sont « avec vous ». Posée avant le
+    // nom, parce que c'est elle qui décide de la place qui reste au nom.
     QFont tag = plainFont(painter);
     tag.setBold(true);
     tag.setPixelSize(plaqueTextSize(inner.height(), kPlaqueBadgeSize, 9));
     tag.setCapitalization(QFont::AllUppercase);
     painter->setFont(tag);
     const QFontMetricsF tagMetrics(tag);
-    const QString role = takerSeat < 0      ? tr("à l'enchère")
-                         : taker            ? tr("preneur")
+    const int callee = m_game->callee();
+    const bool called = callee >= 0 && at == callee;
+    const QString role = takerSeat < 0 ? tr("à l'enchère")
+                         : taker       ? tr("preneur")
+                         : called && takerSeat == mySeat() ? tr("avec vous")
                          : takerSeat == mySeat() ? tr("contre vous")
                                                  : tr("avec vous");
     QRectF chip(0, 0, tagMetrics.horizontalAdvance(role) + 12.0, tagMetrics.height() + 3.0);

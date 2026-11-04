@@ -121,6 +121,9 @@ Contract contractFor(int strength, const Skill &skill);
 
 // Ce qu'on dit, maintenant, à cette place. Appelé une fois par tour de parole.
 Contract chooseBid(const Tarot &game, int at, const Skill &skill);
+// À 5 joueurs, la couleur que le preneur appelle : une couleur dont la carte
+// appelée n'est pas dans sa main, pour avoir un partenaire.
+Suit chooseCall(const Tarot &game, int at, const Skill &skill);
 
 // Les six cartes qu'on met de côté. Appelé une fois, quand le preneur a le
 // chien en main.

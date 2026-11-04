@@ -90,6 +90,7 @@ void ScoreBoard::showDonne(const Tarot *game) {
         line.ours = at == me;
         line.hue = line.ours ? currentPalette().hue : game->seat(at).hue;
         line.taker = at == done.taker;
+        line.callee = at == done.callee;
         line.tricks = done.tricks[team];
         line.points = done.points[team];
         line.gained = done.gained[at];
@@ -331,7 +332,9 @@ void ScoreBoard::paintEvent(QPaintEvent *) {
             // de chiffres ne disent pas qui était seul contre les trois
             // autres.
             const QString name =
-                line.taker ? tr("%1 — preneur").arg(line.name) : line.name;
+                line.taker  ? tr("%1 — preneur").arg(line.name)
+                : line.callee ? tr("%1 — appelé").arg(line.name)
+                              : line.name;
             painter.drawText(QRectF(band.left() + 16.0, band.top(), kNameWidth - 16.0, kRowHeight),
                              Qt::AlignLeft | Qt::AlignVCenter, name);
 

@@ -172,6 +172,9 @@ void Tarot::startDonne() {
     m_chien.clear();
     m_ecart.clear();
     m_taker = -1;
+    m_callee = -1;
+    m_calledSuit = Suit::Pique;
+    m_calledRank = 0;
     m_contract = Contract::Passe;
     m_ecartNeeded = false;
     m_chelemAnnounced = false;
@@ -363,9 +366,23 @@ void Tarot::settleBidding() {
     }
 
     m_taker = m_bidder;
+    m_callee = -1;
     m_contract = m_bid;
     m_ecartNeeded = contractTakesChien(m_contract);
     const Seat &who = seat(m_taker);
+
+    // À 5 joueurs, le preneur appelle un roi avant de voir le chien (règlement
+    // FFT) : le détenteur de la carte appelée sera son partenaire.
+    if (m_seats.size() == 5) {
+        m_phase = Phase::Appel;
+        m_turn = m_taker;
+        Q_EMIT acted(m_taker, tr("%1 prend à la %2 : à 5 joueurs, il appelle un roi.")
+                                  .arg(who.human() ? tr("Vous") : who.name,
+                                       contractName(m_contract)));
+        Q_EMIT changed();
+        Q_EMIT turnBegan(m_turn);
+        return;
+    }
 
     if (contractTakesChien(m_contract)) {
         // Le chien est retourné et vu de tous : c'est le moment où la table
@@ -396,6 +413,98 @@ void Tarot::settleBidding() {
     m_turn = m_taker;
     Q_EMIT changed();
     Q_EMIT turnBegan(m_turn);
+}
+
+// ---------------------------------------------------------------------------
+// L'appel du roi, à 5 joueurs.
+
+bool Tarot::mayCall(int at) const {
+    return m_phase == Phase::Appel && at == m_taker && m_seats.size() == 5;
+}
+
+Card Tarot::calledCardFor(Suit suit, int at) const {
+    // Règlement FFT : on appelle un roi ; si le preneur détient les quatre
+    // rois, une dame, puis un cavalier, puis un valet ; et s'il détient tout,
+    // l'excuse. Le rang appelé est donc le premier que le preneur ne tient
+    // pas en entier.
+    const Seat &who = seat(at);
+    const int ranks[4] = {kRoi, kDame, kCavalier, kValet};
+    for (const int rank : ranks) {
+        bool all = true;
+        for (int s = 0; s < 4; ++s) {
+            if (!findCard(who.hand, cardIdFor(rank, Suit(s)))) all = false;
+        }
+        if (!all) return Card{cardIdFor(rank, suit), rank, suit};
+    }
+    // Tout est tenu : on appelle l'excuse.
+    return Card{cardIdFor(kExcuse, Suit::Atout), kExcuse, Suit::Atout};
+}
+
+bool Tarot::callKing(int at, Suit suit, QString *why) {
+    if (!mayCall(at)) {
+        if (why) *why = tr("Ce n'est pas le moment d'appeler.");
+        return false;
+    }
+    if (suit == Suit::Atout) {
+        if (why) *why = tr("On appelle une couleur, pas l'atout.");
+        return false;
+    }
+
+    const Card called = calledCardFor(suit, at);
+    m_calledSuit = called.suit;
+    m_calledRank = called.rank;
+
+    // Qui détient la carte appelée ? Au chien ou chez le preneur, personne ne
+    // répond : il joue seul contre les quatre autres.
+    m_callee = -1;
+    if (findCard(seat(m_taker).hand, called.id) || findCard(m_chien, called.id)) {
+        m_callee = -1;
+    } else {
+        for (int seatAt = 0; seatAt < m_seats.size(); ++seatAt) {
+            if (seatAt == m_taker) continue;
+            if (findCard(m_seats.at(seatAt).hand, called.id)) {
+                m_callee = seatAt;
+                break;
+            }
+        }
+    }
+
+    const Seat &who = seat(m_taker);
+    if (m_callee < 0) {
+        Q_EMIT acted(m_taker,
+                     who.human()
+                         ? tr("Vous appelez %1 : personne ne répond, vous jouez seul.")
+                               .arg(cardName(called))
+                         : tr("%1 appelle %2 : personne ne répond, il joue seul.")
+                               .arg(who.name, cardName(called)));
+    } else {
+        const Seat &partner = seat(m_callee);
+        Q_EMIT acted(m_taker,
+                     who.human()
+                         ? tr("Vous appelez %1 : %2 sera votre partenaire.")
+                               .arg(cardName(called), partner.name)
+                         : tr("%1 appelle %2 : son partenaire est %3.")
+                               .arg(who.name, cardName(called), partner.name));
+    }
+
+    // La suite est celle d'une prise ordinaire : le chien si le contrat le
+    // prend, sinon l'écart direct.
+    if (contractTakesChien(m_contract)) {
+        m_phase = Phase::Chien;
+        QStringList named;
+        for (const Card &card : m_chien) named.append(cardLabel(card));
+        Q_EMIT acted(m_taker, tr("Le chien : %1.").arg(named.join(QStringLiteral(" "))));
+    } else {
+        const int side = m_contract == Contract::GardeSans ? kTakerTeam : kDefenceTeam;
+        m_extra[side] += totalPoints(m_chien);
+        m_extraBouts[side] += countBouts(m_chien);
+        m_chien.clear();
+        m_phase = Phase::Ecart;
+        m_turn = m_taker;
+    }
+    Q_EMIT changed();
+    Q_EMIT turnBegan(m_turn);
+    return true;
 }
 
 void Tarot::annulDonne() {
@@ -434,12 +543,14 @@ void Tarot::takeChien() {
 int Tarot::forcedTrumpsInEcart() const {
     if (m_taker < 0 || !m_ecartNeeded) return 0;
     // Les cartes qu'on a le droit de jeter sans réserve : ni roi, ni bout, ni
-    // atout. S'il y en a moins de six, il faut compléter avec des atouts, et
+    // atout — et à 5 joueurs avec un appel, ni la carte appelée ni sa couleur.
+    // S'il y en a moins que le chien, il faut compléter avec des atouts, et
     // c'est seulement dans ce cas qu'un atout peut être écarté.
     int free = 0;
     for (const Card &card : seat(m_taker).hand) {
         if (card.suit == Suit::Atout) continue;
         if (card.rank == kRoi) continue;
+        if (m_seats.size() == 5 && m_callee >= 0 && card.suit == m_calledSuit) continue;
         ++free;
     }
     return std::max(0, chienSize() - free);
@@ -451,6 +562,11 @@ bool Tarot::mayDiscard(const Card &card) const {
     // et les mettre de côté reviendrait à se les garantir.
     if (isBout(card)) return false;
     if (card.suit != Suit::Atout && card.rank == kRoi) return false;
+    // À 5 joueurs avec un appel : ni la carte appelée ni sa couleur, sauf si
+    // l'on n'a pas assez d'autres cartes à jeter.
+    if (m_seats.size() == 5 && m_callee >= 0 && card.suit == m_calledSuit) {
+        return forcedTrumpsInEcart() > 0;
+    }
     if (card.suit == Suit::Atout) return forcedTrumpsInEcart() > 0;
     return true;
 }
@@ -632,8 +748,19 @@ QVector<int> Tarot::legalCards(int at) const {
     };
 
     // Celui qui entame joue ce qu'il veut ; et celui qui suit une excuse
-    // entamée aussi, puisque c'est lui qui demande l'enseigne.
-    if (m_trick.isEmpty() || !ledKnown()) return everything();
+    // entamée aussi, puisque c'est lui qui demande l'enseigne. Sauf à 5 joueurs
+    // avec un appel : à la première entame, la couleur appelée est interdite,
+    // sauf si c'est la carte appelée elle-même qui est jouée.
+    if (m_trick.isEmpty() || !ledKnown()) {
+        if (m_seats.size() == 5 && m_callee >= 0 && m_trickNumber == 1) {
+            for (const Card &card : who.hand) {
+                const bool isCalled = card.suit == m_calledSuit && card.rank == m_calledRank;
+                if (card.suit != m_calledSuit || isCalled) allowed.append(card.id);
+            }
+            return allowed;
+        }
+        return everything();
+    }
 
     const Suit led = ledSuit();
     const bool hasLed = led != Suit::Atout && hasSuit(who.hand, led);
@@ -903,9 +1030,18 @@ void Tarot::finishDonne() {
     done.unit = signed_;
     // La marque : le preneur empoche l'unité multipliée par le nombre de
     // défenseurs, et chacun d'eux la perd — la somme est nulle à 3, 4 et 5.
+    // À 5 joueurs avec un partenaire appelé, la prime se partage entre les
+    // deux attaquants : 2/3 pour le preneur, 1/3 pour l'appelé.
+    done.callee = m_callee;
     const int seats = m_seats.size();
     for (int at = 0; at < seats; ++at) {
-        done.gained[at] = at == m_taker ? signed_ * (seats - 1) : -signed_;
+        if (seats == 5 && m_callee >= 0) {
+            done.gained[at] = at == m_taker  ? signed_ * 2
+                              : at == m_callee ? signed_
+                                               : -signed_;
+        } else {
+            done.gained[at] = at == m_taker ? signed_ * (seats - 1) : -signed_;
+        }
         m_score[at] += done.gained[at];
     }
 

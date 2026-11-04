@@ -153,6 +153,17 @@ QWidget *TablePage::buildActions() {
         connect(m_bid[i], &QPushButton::clicked, this, [this, contract] { doBid(contract); });
     }
     m_pass = actionButton(m_actions, tr("Passer"), tr("Laisser parler le suivant"), tr("P"));
+    // À 5 joueurs, le preneur appelle un roi avant de voir le chien : quatre
+    // boutons de couleur, un par enseigne.
+    for (int i = 0; i < 4; ++i) {
+        const Suit suit = Suit(i);
+        m_call[i] = actionButton(m_actions, tr("Appeler %1").arg(suitPip(suit)),
+                                 tr("Appeler la carte de %1 : son détenteur sera votre "
+                                    "partenaire")
+                                     .arg(suitName(suit)),
+                                 QString());
+        connect(m_call[i], &QPushButton::clicked, this, [this, i] { doCall(i); });
+    }
     m_chien = actionButton(m_actions, tr("Prendre le chien"),
                            tr("Ramasser les six cartes et faire son écart"), tr("Entrée"));
     m_ecart = actionButton(m_actions, tr("Écarter"),
@@ -173,6 +184,7 @@ QWidget *TablePage::buildActions() {
     across->addSpacing(12);
     for (QPushButton *button : m_bid) across->addWidget(button);
     across->addWidget(m_pass);
+    for (QPushButton *button : m_call) across->addWidget(button);
     across->addSpacing(12);
     across->addWidget(m_hint);
     across->addWidget(m_chien);
@@ -465,6 +477,11 @@ void TablePage::playRival() {
         return;
     }
 
+    if (m_game->phase() == Phase::Appel) {
+        m_game->callKing(at, chooseCall(*m_game, at, m_skills.at(at)));
+        return;
+    }
+
     if (m_game->phase() == Phase::Ecart) {
         playRivalEcart();
         return;
@@ -696,6 +713,16 @@ void TablePage::doBid(Contract contract) {
     if (!m_game->makeBid(contract, &why)) grumble(why);
 }
 
+void TablePage::doCall(int suit) {
+    const int me = mySeat();
+    if (me < 0 || !m_game->mayCall(me)) {
+        grumble(tr("Ce n'est pas à vous d'appeler."));
+        return;
+    }
+    QString why;
+    if (!m_game->callKing(me, Suit(suit), &why)) grumble(why);
+}
+
 void TablePage::doPass() {
     QString why;
     if (!m_game->pass(&why)) grumble(why);
@@ -815,6 +842,7 @@ void TablePage::updateActions() {
     const int me = mySeat();
     const bool mine = me >= 0 && m_game->turn() == me;
     const bool bidding = mine && m_game->phase() == Phase::Bidding;
+    const bool calling = mine && m_game->phase() == Phase::Appel;
     const bool laying = mine && m_game->phase() == Phase::Playing;
     const bool discarding = me >= 0 && m_game->phase() == Phase::Ecart &&
                             m_game->taker() == me && m_game->ecartNeeded();
@@ -834,6 +862,13 @@ void TablePage::updateActions() {
     m_pass->setVisible(bidding);
     m_pass->setEnabled(bidding);
 
+    // L'appel du roi à 5 joueurs : visible quand c'est à vous de prendre et
+    // d'appeler.
+    for (int i = 0; i < 4; ++i) {
+        m_call[i]->setVisible(calling);
+        m_call[i]->setEnabled(calling);
+    }
+
     // Le chien reste retourné le temps qu'on le lise. Quand c'est vous qui
     // prenez, rien ne le ramasse tout seul : on regarde six cartes aussi
     // longtemps qu'on veut.
@@ -847,7 +882,7 @@ void TablePage::updateActions() {
     m_ecart->setEnabled(discarding && m_view->picked().size() == m_game->chienSize());
     m_ecart->setText(tr("Écarter (%1/%2)").arg(m_view->picked().size()).arg(m_game->chienSize()));
 
-    m_play->setVisible(!bidding && !discarding && !mineToTake);
+    m_play->setVisible(!bidding && !calling && !discarding && !mineToTake);
     const int chosen = m_view->chosen();
     m_play->setEnabled(laying && chosen >= 0 && m_game->legal(me, chosen));
 
@@ -901,6 +936,12 @@ void TablePage::updateActions() {
     const QString whose = m_game->taker() == me ? tr("vous avez le contrat")
                                                 : tr("%1 a le contrat")
                                                       .arg(m_game->seat(m_game->taker()).name);
+    if (m_game->phase() == Phase::Appel) {
+        setState(tr("%1 — à 5 joueurs, appelez un roi : son détenteur sera votre partenaire")
+                     .arg(whose));
+        return;
+    }
+
     if (m_game->phase() == Phase::Chien || m_game->phase() == Phase::Ecart) {
         setState(tr("%1 — %2, ×%3")
                      .arg(contractName(m_game->contract()), whose)

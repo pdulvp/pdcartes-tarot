@@ -107,6 +107,7 @@ private:
     void sortAsPreferred();
     void showDealIfNew();
     void doBid(Contract contract);
+    void doCall(int suit);
     void doPass();
     void doPlay();
     void doHint();
@@ -138,6 +139,7 @@ private:
     QPushButton *m_sortValue = nullptr;
     // Les quatre paroles de l'enchère, dans l'ordre où elles se dépassent.
     QPushButton *m_bid[4] = {nullptr, nullptr, nullptr, nullptr};
+    QPushButton *m_call[4] = {nullptr, nullptr, nullptr, nullptr};
     QPushButton *m_pass = nullptr;
     QPushButton *m_chien = nullptr;
     QPushButton *m_ecart = nullptr;
