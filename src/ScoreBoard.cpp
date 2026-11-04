@@ -71,8 +71,9 @@ void ScoreBoard::showDonne(const Tarot *game) {
 
     if (done.annulled) {
         m_headline = tr("Donne annulée");
-        m_aside = tr("Les quatre ont passé : personne n'avait de quoi prendre, et c'est au "
-                     "suivant de donner.");
+        m_aside = tr("Les %1 ont passé : personne n'avait de quoi prendre, et c'est au "
+                     "suivant de donner.")
+                      .arg(countedText(game->seatCount(), tr("joueur"), tr("joueurs")));
         present(tr("Redonner"));
         return;
     }

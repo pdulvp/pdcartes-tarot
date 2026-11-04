@@ -509,7 +509,9 @@ void MainWindow::updateTopBar() {
     m_profileChip->reread();
 
     if (!playing) {
-        setSubtitle(tr("Le tarot français, à quatre et sur tapis vert"));
+        setSubtitle(tr("Le tarot français, à %1 et sur tapis vert")
+                        .arg(countedText(qBound(kMinSeats, m_settings.seats, kMaxSeats),
+                                         tr("joueur"), tr("joueurs"))));
         return;
     }
 

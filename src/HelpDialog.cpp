@@ -35,7 +35,7 @@ QString sheetFor(const Palette &scheme) {
 const char *kRules = R"HTML(
 <h1>Le tarot français</h1>
 
-<p class="lead">Le tarot se joue ici à quatre, avec soixante-dix-huit cartes.
+<p class="lead">Le tarot se joue ici à 3, 4 ou 5 joueurs, avec soixante-dix-huit cartes.
 Un joueur prend la donne et se retrouve <b>seul contre les trois autres</b>
 pour cette donne-là : les camps sont refaits à chaque fois, et personne ne
 choisit le sien. Le preneur doit ramasser un certain nombre de points ; les

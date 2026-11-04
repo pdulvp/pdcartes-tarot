@@ -1265,7 +1265,11 @@ void TableView::paintSide(QPainter *painter) {
             label = taker == me ? tr("Vous, preneur") : tr("%1, preneur").arg(
                                       m_game->seat(taker).name);
         } else {
-            label = taker == me ? tr("Les trois autres") : tr("La défense");
+            label = taker == me
+                        ? tr("Les %1")
+                              .arg(countedText(m_game->seatCount() - 1, tr("autre"),
+                                               tr("autres")))
+                        : tr("La défense");
         }
         painter->drawText(
             QRectF(inner.left() + 12.0, y, inner.width() - 12.0, nameMetrics.height()),

@@ -1,6 +1,6 @@
 # pdcartes-tarot
 
-Le tarot français, écrit en C++17 avec Qt 6, joué sur un tapis vert à quatre —
+Le tarot français, écrit en C++17 avec Qt 6, joué sur un tapis vert à 3, 4 ou 5 joueurs —
 vous et trois adversaires qui apprennent d'une partie à l'autre.
 
 Soixante-dix-huit cartes, dix-huit à chacun, six au chien, et un contrat qui
