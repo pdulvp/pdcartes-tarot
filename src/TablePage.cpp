@@ -238,16 +238,19 @@ QVector<SeatSpec> TablePage::chooseSeats() const {
     // de places est impair). Au tarot il n'est pas votre partenaire -- les
     // camps se refont à chaque donne, sauf à 5 joueurs avec l'appel du roi --
     // mais c'est la place qu'on regarde le plus, et c'est donc celle qu'on
-    // choisit. Ensuite on remplit en alternant les deux côtés.
+    // choisit. Ensuite on remplit en alternant les deux côtés : chaque place
+    // restante une fois, sinon une place resterait vide et compterait pour un
+    // joueur de plus.
+    const int opposite = seats / 2 + seats % 2;   // 2 à 3 et 4 joueurs, 3 à 5
     QVector<int> places;
-    for (int side = 0; side < seats - 1; ++side) {
-        if (side == 0) {
-            places.append(seats / 2 + (seats % 2 == 0 ? 0 : 1));
-        } else if (side % 2 == 1) {
-            places.append(side);
-        } else {
-            places.append(seats - side / 2);
-        }
+    places.append(opposite);
+    QVector<int> sideSeats;
+    for (int seat = 1; seat < seats; ++seat) {
+        if (seat != opposite) sideSeats.append(seat);
+    }
+    for (int i = 0; i < sideSeats.size(); ++i) {
+        places.append(i % 2 == 0 ? sideSeats.at(i / 2)
+                                 : sideSeats.at(sideSeats.size() - 1 - i / 2));
     }
     QVector<SeatSpec> round(seats);
     round[0] = you;
