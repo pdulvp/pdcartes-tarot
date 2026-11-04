@@ -45,7 +45,7 @@ int knownTeam(const Tarot &game, int seat, int observer, const Skill &skill) {
     // camp à coup sûr (l'appelé tient la carte appelée, les autres savent
     // qu'ils ne la tiennent pas).
     if (seat != observer && skill.guessesPartner && team == kDefenceTeam &&
-        seat != game.taker() && game.callHidden() && !game.callRevealed() &&
+        seat != game.taker() && !game.callRevealed() &&
         seat == game.guessedCallee()) {
         return kTakerTeam;
     }

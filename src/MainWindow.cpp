@@ -618,7 +618,6 @@ void MainWindow::readSettings() {
     }
     m_settings.poignees = settings.value(QStringLiteral("regles/poignees"), true).toBool();
     m_settings.chelem = settings.value(QStringLiteral("regles/chelem"), true).toBool();
-    m_settings.hideCall = settings.value(QStringLiteral("regles/appelCache"), false).toBool();
     m_settings.holdByValue = settings.value(QStringLiteral("aide/parValeur"), false).toBool();
     m_settings.offerHints = settings.value(QStringLiteral("aide/conseil"), true).toBool();
     m_settings.celebrate = settings.value(QStringLiteral("aide/feu"), true).toBool();
@@ -636,7 +635,6 @@ void MainWindow::writeSettings() {
     settings.setValue(QStringLiteral("table/joueurs"), m_settings.seats);
     settings.setValue(QStringLiteral("regles/poignees"), m_settings.poignees);
     settings.setValue(QStringLiteral("regles/chelem"), m_settings.chelem);
-    settings.setValue(QStringLiteral("regles/appelCache"), m_settings.hideCall);
     settings.setValue(QStringLiteral("aide/parValeur"), m_settings.holdByValue);
     settings.setValue(QStringLiteral("aide/conseil"), m_settings.offerHints);
     settings.setValue(QStringLiteral("aide/feu"), m_settings.celebrate);

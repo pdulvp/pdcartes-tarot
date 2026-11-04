@@ -225,10 +225,10 @@ sauf à 5 joueurs : après les enchères et <b>avant de voir le chien</b>, le
 preneur <b>appelle un roi</b> de son choix (une dame s'il a les quatre rois,
 puis un cavalier, puis un valet), et le détenteur de cette carte devient son
 partenaire, l'<b>appelé</b>, pour la donne — sa plaque porte « avec vous »
-quand c'est vous qui prenez. Une case des réglages permet de <b>cacher
-l'appelé</b> : personne ne sait alors qui est le partenaire du preneur, tant
-que la carte appelée n'a pas été posée sur un pli — c'est elle, publique,
-qui révèle le camp. Si la carte appelée est au chien ou chez le
+quand c'est vous qui prenez, une fois la carte appelée jouée. L'appelé reste
+<b>caché</b> : personne ne sait
+qui est le partenaire du preneur tant que la carte appelée n'a pas été posée
+sur un pli — c'est elle, publique, qui révèle le camp. Si la carte appelée est au chien ou chez le
 preneur, il joue seul contre les quatre autres. À l'écart, on ne met ni la
 carte appelée ni sa couleur ; à la première entame, cette couleur est
 interdite sauf si c'est la carte appelée elle-même. La marque se partage alors
@@ -249,10 +249,10 @@ au lancement suivant. Un <b>débutant</b> compte ses atouts et prend là-dessus,
 un <b>intermédiaire</b> pèse sa main, écarte pour se faire une coupe et protège
 son petit ; un <b>expert</b> se souvient des soixante-dix-huit cartes, sait
 combien d'atouts restent dehors, tire l'atout quand il a pris, chasse le
-petit de l'adversaire, et — à 5 joueurs quand l'appel est caché — devine le
-partenaire du preneur à qui donne des cartes aux plis de celui-ci. Ni eux ni
-vous ne connaissez l'appelé avant que la carte appelée soit jouée, sauf
-l'appelé lui-même qui la tient. L'expérience des six est comptée dans le <b>profil</b>
+petit de l'adversaire, et — à 5 joueurs — devine l'appelé caché, à qui donne
+des cartes aux plis du preneur. Ni eux ni vous ne connaissez l'appelé avant
+que la carte appelée soit jouée, sauf l'appelé lui-même qui la tient.
+L'expérience des six est comptée dans le <b>profil</b>
 sous lequel on joue et nulle part ailleurs.</p>
 
 <h2>Les cartes et le drap</h2>

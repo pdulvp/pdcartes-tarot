@@ -478,20 +478,15 @@ bool Tarot::callKing(int at, Suit suit, QString *why) {
                                .arg(cardName(called))
                          : tr("%1 appelle %2 : personne ne répond, il joue seul.")
                                .arg(who.name, cardName(called)));
-    } else if (m_callHidden) {
-        // Appel caché : on annonce la carte appelée, pas son détenteur.
-        Q_EMIT acted(m_taker,
-                     who.human() ? tr("Vous appelez %1 : le détenteur sera votre partenaire.")
-                                 : tr("%1 appelle %2 : le détenteur sera son partenaire.")
-                                       .arg(who.name, cardName(called)));
     } else {
-        const Seat &partner = seat(m_callee);
+        // L'appel est caché : on annonce la carte appelée, jamais son
+        // détenteur — il se découvrira quand la carte sera posée.
         Q_EMIT acted(m_taker,
-                     who.human()
-                         ? tr("Vous appelez %1 : %2 sera votre partenaire.")
-                               .arg(cardName(called), partner.name)
-                         : tr("%1 appelle %2 : son partenaire est %3.")
-                               .arg(who.name, cardName(called), partner.name));
+                     who.human() ? tr("Vous appelez %1 : le détenteur sera votre partenaire, "
+                                      "caché jusqu'à ce qu'elle soit jouée.")
+                                 : tr("%1 appelle %2 : le détenteur sera son partenaire, "
+                                      "caché jusqu'à ce qu'elle soit jouée.")
+                                       .arg(who.name, cardName(called)));
     }
 
     // La suite est celle d'une prise ordinaire : le chien si le contrat le
@@ -516,7 +511,7 @@ bool Tarot::callKing(int at, Suit suit, QString *why) {
 
 int Tarot::guessedCallee() const {
     if (m_seats.size() != 5 || m_callee < 0) return m_callee;
-    if (!m_callHidden || m_callRevealed) return m_callee;
+    if (m_callRevealed) return m_callee;
 
     // On rejoue l'histoire pli par pli, comme on la voit de la table : un
     // pli que le preneur ramasse fait monter le soupçon de qui y a posé des
@@ -920,14 +915,25 @@ bool Tarot::play(int cardId, QString *why) {
     m_trick.append({at, card});
     m_history.append({at, card});
     // La carte appelée posée sur le tapis se découvre : tout le monde sait
-    // alors qui est le partenaire du preneur.
+    // alors qui est le partenaire du preneur, et c'est dit à la table.
+    bool revealedNow = false;
     if (m_seats.size() == 5 && m_callee >= 0 && card.suit == m_calledSuit &&
         card.rank == m_calledRank) {
         m_callRevealed = true;
+        revealedNow = true;
     }
 
     Q_EMIT acted(at, seat(at).human() ? tr("Vous jouez %1.").arg(cardName(card))
                                       : tr("%1 joue %2.").arg(seat(at).name, cardName(card)));
+    if (revealedNow) {
+        const QString takerName = seat(m_taker).human() ? tr("vous") : seat(m_taker).name;
+        Q_EMIT acted(at, seat(at).human()
+                             ? tr("Vous posez %1, la carte appelée : vous êtes le partenaire "
+                                  "de %2.")
+                                   .arg(cardName(card), takerName)
+                             : tr("%1 pose %2, la carte appelée : c'est le partenaire de %3.")
+                                   .arg(seat(at).name, cardName(card), takerName));
+    }
 
     if (m_trick.size() < m_seats.size()) {
         m_turn = (m_turn + 1) % m_seats.size();

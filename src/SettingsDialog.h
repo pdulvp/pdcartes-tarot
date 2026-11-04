@@ -97,7 +97,6 @@ private:
     QButtonGroup *m_paces = nullptr;
     QCheckBox *m_poignees = nullptr;
     QCheckBox *m_chelem = nullptr;
-    QCheckBox *m_hideCall = nullptr;
     QLabel *m_rulesNote = nullptr;
     QCheckBox *m_holdByValue = nullptr;
     QCheckBox *m_offerHints = nullptr;

@@ -159,12 +159,12 @@ le règlement de la FFT. À 3 joueurs chacun a 24 cartes (données 4 par 4) et l
 chien en a 6 ; à 4, 18 cartes et 6 au chien ; à 5, 15 cartes et 3 au chien, et
 le preneur **appelle un roi** après les enchères et avant de voir le chien :
 le détenteur de la carte appelée devient son partenaire (l'« appelé ») pour la
-donne, sa plaque portant « avec vous » quand c'est vous qui prenez — et une
-case des réglages permet de **cacher l'appelé** : personne ne sait alors qui
-est le partenaire du preneur tant que la carte appelée n'est pas jouée, et
-c'est elle, posée sur un pli, qui révèle le camp (les adversaires ne le
-savent pas non plus — seul l'appelé se reconnaît, et les experts le devinent
-à qui donne des cartes au preneur) ; si la
+donne, sa plaque portant « avec vous » quand c'est vous qui prenez, une fois
+la carte appelée jouée — l'appelé reste **caché** : personne ne sait qui est le partenaire du preneur
+tant que la carte appelée n'est pas jouée, et c'est elle, posée sur un pli,
+qui révèle le camp (les adversaires ne le savent pas non plus — seul
+l'appelé se reconnaît, et les experts le devinent à qui donne des cartes au
+preneur) ; si la
 carte appelée est au chien ou chez le preneur, il joue seul contre 4. À
 l'écart on ne met ni la carte appelée ni sa couleur, et à la première entame
 cette couleur est interdite sauf la carte appelée elle-même. La marque se

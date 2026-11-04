@@ -377,18 +377,6 @@ void SettingsDialog::buildPlayPage() {
                  "sans l'avoir annoncé, il en vaut 200.")));
     rows->addSpacing(14);
 
-    m_hideCall = switchRow(page, tr("À 5 joueurs, cacher l'appelé jusqu'à ce que la carte "
-                                    "appelée soit jouée"),
-                           m_settings.hideCall);
-    rows->addWidget(m_hideCall);
-    rows->addSpacing(4);
-    rows->addWidget(asideLabel(
-        page, tr("L'appel du roi désigne un partenaire, mais personne ne sait lequel — pas "
-                 "même le preneur — tant que la carte appelée n'a pas été posée sur un "
-                 "pli : c'est elle, publique, qui révèle le camp. À 3 ou 4 joueurs, il n'y "
-                 "a pas d'appel et ce réglage ne change rien.")));
-    rows->addSpacing(14);
-
     m_rulesNote = asideLabel(page, QString());
     rows->addWidget(m_rulesNote);
     rows->addStretch(1);
@@ -885,7 +873,7 @@ void SettingsDialog::describeDeck() {
 void SettingsDialog::describeRules() {
     if (!m_rulesNote) return;
     m_rulesNote->setText(
-        tr("Ces trois-là valent pour la partie suivante : une partie en cours garde les "
+        tr("Ces deux-là valent pour la partie suivante : une partie en cours garde les "
            "règles avec lesquelles elle a commencé. Le reste du tarot ne se règle pas — "
            "le petit au bout, les bouts qui abaissent le contrat et le multiplicateur du "
            "contrat sont le jeu lui-même."));
@@ -897,7 +885,6 @@ GameSettings SettingsDialog::settings() const {
     chosen.pace = qBound(0, m_paces->checkedId(), 2);
     chosen.poignees = m_poignees->isChecked();
     chosen.chelem = m_chelem->isChecked();
-    chosen.hideCall = m_hideCall->isChecked();
     chosen.holdByValue = m_holdByValue->isChecked();
     chosen.offerHints = m_offerHints->isChecked();
     chosen.celebrate = m_celebrate->isChecked();

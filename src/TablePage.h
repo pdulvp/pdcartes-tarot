@@ -27,9 +27,6 @@ struct GameSettings {
     // pas une partie en cours.
     bool poignees = true;
     bool chelem = true;
-    // À 5 joueurs, cacher l'appelé : personne ne sait qui joue avec le preneur
-    // tant que la carte appelée n'est pas posée.
-    bool hideCall = false;
     // Dans quel ordre la main est tenue. Par couleur, les atouts en tête, qui
     // est l'ordre où l'on tient une main de tarot ; ou par valeur, les cartes
     // qui comptent devant, qui est l'ordre où l'on regarde sa main au moment

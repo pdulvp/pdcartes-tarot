@@ -189,7 +189,7 @@ public:
     // il compte défenseur, comme à l'enchère.
     int knownTeamOf(int at, int observer) const {
         if (m_seats.size() == 5 && at == m_callee && observer != m_callee &&
-            m_callHidden && !m_callRevealed) {
+            !m_callRevealed) {
             return kDefenceTeam;
         }
         return teamOf(at);
@@ -234,10 +234,8 @@ public:
     bool callKing(int at, Suit suit, QString *why = nullptr);
     int callee() const { return m_callee; }
     Suit calledSuit() const { return m_calledSuit; }
-    // L'appel peut être caché : personne ne sait qui est l'appelé tant que la
-    // carte appelée n'a pas été jouée (où elle se découvre, publiquement).
-    void setCallHidden(bool hidden) { m_callHidden = hidden; }
-    bool callHidden() const { return m_callHidden; }
+    // L'appel est toujours caché : personne ne sait qui est l'appelé tant que
+    // la carte appelée n'a pas été jouée (où elle se découvre, publiquement).
     bool callRevealed() const { return m_callRevealed; }
     // La devinette : à 5 joueurs avec l'appel caché et pas encore révélé, le
     // siège qui semble être le partenaire du preneur, d'après ce qui a été
@@ -392,7 +390,6 @@ private:
     int m_callee = -1;
     Suit m_calledSuit = Suit::Pique;
     int m_calledRank = 0;
-    bool m_callHidden = false;
     bool m_callRevealed = false;
     Contract m_contract = Contract::Passe;
     bool m_ecartNeeded = false;
