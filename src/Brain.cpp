@@ -205,7 +205,7 @@ QVector<int> chooseEcart(const Tarot &game, int at, const Skill &skill) {
             return cardStrength(a) < cardStrength(b);
         });
         for (const Card &card : free) {
-            if (chosen.size() >= kChienSize) break;
+            if (chosen.size() >= game.chienSize()) break;
             chosen.append(card.id);
         }
         return chosen;
@@ -262,16 +262,16 @@ QVector<int> chooseEcart(const Tarot &game, int at, const Skill &skill) {
         if (plan.king || plan.length == 0) continue;
         const QVector<Card> list = jetables(plan.suit);
         if (list.size() != plan.length) continue;          // une carte y est retenue
-        if (chosen.size() + list.size() > kChienSize) continue;
+        if (chosen.size() + list.size() > game.chienSize()) continue;
         for (const Card &card : list) chosen.append(card.id);
     }
 
     // Second passage : compléter par les cartes les moins chères de ce qui
     // reste, les couleurs sans roi d'abord.
     for (const SuitPlan &plan : plans) {
-        if (chosen.size() >= kChienSize) break;
+        if (chosen.size() >= game.chienSize()) break;
         for (const Card &card : jetables(plan.suit)) {
-            if (chosen.size() >= kChienSize) break;
+            if (chosen.size() >= game.chienSize()) break;
             if (chosen.contains(card.id)) continue;
             // La carte qui garde un roi ne se jette qu'en dernier recours :
             // un roi seul se coupe, un roi gardé passe.
@@ -282,7 +282,7 @@ QVector<int> chooseEcart(const Tarot &game, int at, const Skill &skill) {
 
     // Dernier recours : tout ce qui reste de permis, atouts compris lorsque la
     // main n'offre rien d'autre.
-    if (chosen.size() < kChienSize) {
+    if (chosen.size() < game.chienSize()) {
         QVector<Card> rest = free;
         std::sort(rest.begin(), rest.end(), [](const Card &a, const Card &b) {
             if ((a.suit == Suit::Atout) != (b.suit == Suit::Atout)) {
@@ -292,7 +292,7 @@ QVector<int> chooseEcart(const Tarot &game, int at, const Skill &skill) {
             return cardStrength(a) < cardStrength(b);
         });
         for (const Card &card : rest) {
-            if (chosen.size() >= kChienSize) break;
+            if (chosen.size() >= game.chienSize()) break;
             if (chosen.contains(card.id)) continue;
             chosen.append(card.id);
         }
@@ -431,8 +431,8 @@ int chooseCard(const Tarot &game, int at, const Skill &skill) {
     const QVector<Card> playable = cardsOf(hand, legal);
     const Seen seen = cardsSeen(game);
     const int myTeam = game.teamOf(at);
-    const bool last = game.trick().size() == kSeatCount - 1;
-    const bool lastTrick = game.trickNumber() >= kTrickCount;
+    const bool last = game.trick().size() == game.seatCount() - 1;
+    const bool lastTrick = game.trickNumber() >= game.trickCount();
 
     // L'excuse, qui est une décision à elle seule : c'est un bout de quatre
     // points et demi, et on le garde. On la joue sur un pli déjà perdu et

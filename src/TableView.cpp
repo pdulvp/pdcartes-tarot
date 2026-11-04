@@ -23,6 +23,7 @@
 
 namespace {
 
+constexpr qreal kPi = 3.14159265358979323846;
 constexpr int kFrameMs = 16;
 
 // Ce que chaque bande du drap reçoit, avant que rien ne soit serré.
@@ -259,8 +260,9 @@ int TableView::mySeat() const {
 
 int TableView::compassOf(int at) const {
     const int me = mySeat();
-    if (me < 0 || at < 0) return 0;
-    return ((at - me) % kSeatCount + kSeatCount) % kSeatCount;
+    if (me < 0 || at < 0 || !m_game) return 0;
+    const int seats = m_game->seatCount();
+    return ((at - me) % seats + seats) % seats;
 }
 
 bool TableView::myTurn() const {
@@ -355,7 +357,7 @@ QRectF TableView::dealBox() const {
 }
 
 void TableView::noteDealt() {
-    if (!m_game || m_game->seatCount() < kSeatCount) return;
+    if (!m_game || m_game->seatCount() < kMinSeats) return;
 
     // Les places d'abord, parce que c'est là qu'on va chercher où chaque carte
     // de votre main atterrit.
@@ -375,8 +377,9 @@ void TableView::noteDealt() {
     // donneur, puis deux, ce que la vue n'a pas à savoir -- elle suit l'ordre
     // dans lequel les cartes sont arrivées en main.
     int rank = 0;
-    for (int step = 1; step <= kSeatCount; ++step) {
-        const int at = (m_game->dealer() + step) % kSeatCount;
+    const int seats = m_game->seatCount();
+    for (int step = 1; step <= seats; ++step) {
+        const int at = (m_game->dealer() + step) % seats;
         const Seat &seat = m_game->seat(at);
         for (const Card &card : seat.hand) {
             Flight flight;
@@ -410,7 +413,7 @@ void TableView::noteDealt() {
 }
 
 void TableView::noteChienTaken(const QVector<int> &cardIds) {
-    if (!m_game || cardIds.isEmpty() || m_game->seatCount() < kSeatCount) return;
+    if (!m_game || cardIds.isEmpty() || m_game->seatCount() < kMinSeats) return;
 
     relayout();
 
@@ -595,18 +598,23 @@ void TableView::layoutSeats() {
     m_seatBoxes.clear();
     m_cross = m_tapis;
     m_aroundTable = false;
-    if (!m_game || m_game->seatCount() < kSeatCount) return;
+    if (!m_game || m_game->seatCount() < kMinSeats) return;
 
     const int me = mySeat();
     if (me < 0) return;
-    // Les trois autres, dans l'ordre où ils sont assis autour de vous : à
-    // gauche, en face, à droite. Vos propres cartes sont devant vous et votre
-    // marque est dans la colonne, où il y a la place.
+    // Les autres, dans l'ordre où ils sont assis autour de vous. Vos propres
+    // cartes sont devant vous et votre marque est dans la colonne, où il y a
+    // la place.
+    const int seats = m_game->seatCount();
     QVector<int> others;
-    for (int step = 1; step < kSeatCount; ++step) others.append((me + step) % kSeatCount);
+    for (int step = 1; step < seats; ++step) others.append((me + step) % seats);
 
     const qreal aside = std::clamp(m_tapis.width() * 0.25, kAsideWidth, kWidestPlaque);
-    m_aroundTable = roomAround(aside);
+    // À 4 joueurs, les plaques vont autour du tapis quand la place le permet.
+    // À 3 ou 5 joueurs, elles restent en bande au-dessus, comme à card-sol :
+    // il n'y a pas de croix à trois ou cinq places où la plaque dise le côté
+    // de la carte.
+    m_aroundTable = seats == kSeatCount && roomAround(aside);
 
     if (!m_aroundTable) {
         // En bande au-dessus du tapis, les trois côte à côte et dans l'ordre
@@ -654,24 +662,25 @@ void TableView::layoutSlots() {
     const QSizeF card = cardSizeForHeight(height);
     const QPointF middle = m_cross.center();
 
-    // Les quatre places du pli, en croix autour du milieu : chacune est du
-    // côté de celui qui y pose sa carte, et c'est ce qui fait qu'on sait de
-    // qui est la carte sans qu'on l'écrive.
+    // Les places du pli, en cercle autour du milieu : chacune est du côté de
+    // celui qui y pose sa carte, et c'est ce qui fait qu'on sait de qui est la
+    // carte sans qu'on l'écrive. À 4 joueurs le cercle est la croix usuelle ;
+    // à 3 ou 5 joueurs il devient un triangle ou un pentagone aplati.
     //
     // L'écart de gauche à droite fait plus d'une carte de large, ce qui suffit
     // à lui seul : deux cartes qui ne se chevauchent pas en largeur ne se
     // chevauchent pas, quelle que soit leur hauteur. L'écart de haut en bas
     // n'a donc qu'à être assez grand pour que la croix soit une croix.
-    const qreal dx = card.width() * 1.14;
-    const qreal dy = card.height() * 0.60;
-    const QPointF where[4] = {QPointF(middle.x(), middle.y() + dy),
-                              QPointF(middle.x() - dx, middle.y()),
-                              QPointF(middle.x(), middle.y() - dy),
-                              QPointF(middle.x() + dx, middle.y())};
-    for (int i = 0; i < 4; ++i) {
+    const int seats = m_game ? m_game->seatCount() : kSeatCount;
+    const qreal dx = card.width() * (seats > 4 ? 1.30 : 1.14);
+    const qreal dy = card.height() * (seats > 4 ? 0.52 : 0.60);
+    m_slotBoxes.clear();
+    for (int i = 0; i < seats; ++i) {
+        // La place 0 est en bas (la vôtre) ; on tourne dans le sens du jeu.
+        const qreal angle = kPi / 2.0 + i * 2.0 * kPi / seats;
         QRectF box(0, 0, card.width(), card.height());
-        box.moveCenter(where[i]);
-        m_slotBoxes[i] = box;
+        box.moveCenter(QPointF(middle.x() + dx * std::cos(angle), middle.y() + dy * std::sin(angle)));
+        m_slotBoxes.append(box);
     }
 
     // Le chien, posé en rang au milieu du drap le temps qu'on le lise. Six
@@ -679,11 +688,11 @@ void TableView::layoutSlots() {
     // seule chose sur la table à ce moment-là, et elle décide de la donne.
     m_chienBoxes.clear();
     const QSizeF big = cardSizeForHeight(std::min(height * 1.10, m_cross.height() * 0.42));
-    const qreal step = std::min(big.width() + 8.0,
-                                (m_cross.width() - 24.0) / qreal(kChienSize));
-    const qreal span = big.width() + step * (kChienSize - 1);
+    const int chien = m_game ? m_game->chienSize() : 6;
+    const qreal step = std::min(big.width() + 8.0, (m_cross.width() - 24.0) / qreal(chien));
+    const qreal span = big.width() + step * (chien - 1);
     const qreal left = middle.x() - span / 2.0;
-    for (int i = 0; i < kChienSize; ++i) {
+    for (int i = 0; i < chien; ++i) {
         m_chienBoxes.append(QRectF(left + step * i, middle.y() - big.height() / 2.0,
                                    big.width(), big.height()));
     }
@@ -766,7 +775,7 @@ void TableView::paintEvent(QPaintEvent *) {
     painter.setRenderHint(QPainter::TextAntialiasing, true);
 
     drawFelt(&painter, QRectF(rect()), scheme);
-    if (!m_game || m_game->seatCount() < kSeatCount) return;
+    if (!m_game || m_game->seatCount() < kMinSeats) return;
 
     paintSeats(&painter);
     paintTapis(&painter);
@@ -932,7 +941,7 @@ void TableView::paintTapis(QPainter *painter) {
     default:
         heading = tr("Le pli %1 sur %2")
                       .arg(std::max(1, m_game->trickNumber()))
-                      .arg(kTrickCount);
+                      .arg(m_game->trickCount());
         break;
     }
     // Dans le coin du tapis et non au-dessus : au-dessus, il n'y a que

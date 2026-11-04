@@ -154,8 +154,13 @@ comme le chelem se laissent de côté : ce sont deux cases dans les réglages.
 
 ## Les cinq tables
 
-On est quatre, et ce n'est pas réglable. Ce qui change d'une table à l'autre
-n'est donc pas qui y joue mais la longueur de la partie, comptée en **donnes**
+Le **nombre de joueurs** se choisit sur la page de menu : **3, 4 ou 5**, selon
+le règlement de la FFT. À 3 joueurs chacun a 24 cartes (données 4 par 4) et le
+chien en a 6 ; à 4, 18 cartes et 6 au chien ; à 5, 15 cartes et 3 au chien, et
+le preneur **appelle un roi** dont le détenteur devient son partenaire. Les
+contrats sont les mêmes partout, et hors appel le preneur est seul contre tous
+les autres. Ce qui change d'une table à l'autre n'est donc pas qui y joue mais
+la longueur de la partie, comptée en **donnes**
 et non en points : la marque du tarot est individuelle, signée et sans plafond,
 et un but en points n'y voudrait rien dire puisque trois joueurs sur quatre sont
 ordinairement dans le négatif. Le nombre est un multiple de quatre, pour que

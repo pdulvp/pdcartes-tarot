@@ -47,6 +47,23 @@ void shuffleCards(QVector<Card> &cards) {
 
 int targetFor(int bouts) { return kTargets[std::clamp(bouts, 0, kBoutCount)]; }
 
+int handSizeFor(int seats) {
+    switch (std::clamp(seats, kMinSeats, kMaxSeats)) {
+    case 3: return 24;
+    case 5: return 15;
+    default: return 18;
+    }
+}
+
+int chienSizeFor(int seats) {
+    return std::clamp(seats, kMinSeats, kMaxSeats) == 5 ? 3 : 6;
+}
+
+int dealPacketFor(int seats) {
+    // À 3 joueurs les cartes se donnent 4 par 4 ; ailleurs, 3 par 3.
+    return std::clamp(seats, kMinSeats, kMaxSeats) == 3 ? 4 : 3;
+}
+
 bool isBout(const Card &card) {
     if (!card.valid() || card.suit != Suit::Atout) return false;
     return card.rank == kExcuse || card.rank == kPetit || card.rank == kVingtEtUn;

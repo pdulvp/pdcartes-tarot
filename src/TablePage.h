@@ -19,6 +19,9 @@ class VictoryEffect;
 // une table, et deux ou trois commodités.
 struct GameSettings {
     QString tableId;
+    // Le nombre de joueurs à la table : 3, 4 ou 5 (règlement FFT). Choisi sur
+    // la page de menu, et gardé d'une séance à l'autre.
+    int seats = kSeatCount;
     // Les deux annonces qui s'ajoutent à la marque sans entrer dans le
     // contrat. Ce sont des règles et non des commodités : elles ne changent
     // pas une partie en cours.

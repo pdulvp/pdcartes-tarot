@@ -140,7 +140,7 @@ struct DonneResult {
     // Ce qu'un défenseur perd ou gagne, et donc le tiers de ce que le preneur
     // fait. En demi-points, du point de vue du preneur.
     int unit = 0;
-    int gained[kSeatCount] = {0, 0, 0, 0};
+    int gained[kMaxSeats] = {0, 0, 0, 0, 0};
 };
 
 class Tarot : public QObject {
@@ -160,6 +160,11 @@ public:
     int seatCount() const { return m_seats.size(); }
     const Seat &seat(int at) const;
     const QVector<Seat> &seats() const { return m_seats; }
+    // La donne en cours, selon le nombre de joueurs : cartes en main, cartes
+    // au chien, plis.
+    int handSize() const { return handSizeFor(seatCount()); }
+    int chienSize() const { return chienSizeFor(seatCount()); }
+    int trickCount() const { return trickCountFor(seatCount()); }
 
     bool withPoignees() const { return m_withPoignees; }
     bool withChelem() const { return m_withChelem; }
@@ -344,7 +349,7 @@ private:
     int m_trickNumber = 0;
     int m_trickWinner = -1;
 
-    int m_score[kSeatCount] = {0, 0, 0, 0};
+    int m_score[kMaxSeats] = {0, 0, 0, 0, 0};
     // Ce que les plis ont rapporté, et les bouts qui y sont tombés. Ces deux
     // comptes-là sont publics : tout le monde a vu les cartes passer, et
     // c'est eux que la colonne de droite affiche pendant la donne.

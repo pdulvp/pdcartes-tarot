@@ -117,6 +117,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(m_titleScreen, &TitlePage::start, this, &MainWindow::leaveTitle);
 
     m_picker = new TablePicker(this);
+    m_picker->setSeats(m_settings.seats);
     connect(m_picker, &TablePicker::tableChosen, this, &MainWindow::startGame);
 
     m_table = new TablePage(this);
@@ -223,6 +224,7 @@ QWidget *MainWindow::buildTopBar() {
 void MainWindow::startGame(const QString &tableId) {
     const TableKind &kind = tableKindById(tableId);
     m_settings.tableId = kind.id;
+    m_settings.seats = m_picker->seats();
     m_settings.invited = m_picker->invited();
 
     m_table->startMatch(m_settings);
@@ -393,7 +395,6 @@ void MainWindow::askForgetProfile(int slot) {
     }
     forgetProfile(slot);
     profileChanged();
-    m_picker->reread();
 }
 
 void MainWindow::profileChanged() {
@@ -515,7 +516,7 @@ void MainWindow::updateTopBar() {
     setSubtitle(m_table->subtitle());
 
     const Tarot *game = m_table->game();
-    if (!game || game->seatCount() < kSeatCount) {
+    if (!game || game->seatCount() < kMinSeats) {
         m_score->setText(QString());
         return;
     }
@@ -540,7 +541,7 @@ void MainWindow::updateTopBar() {
         leader = at;
     }
     const QString written = (mine > 0 ? QStringLiteral("+") : QString()) + pointsText(mine);
-    if (leader == me && best != game->seatScore((me + 1) % kSeatCount)) {
+    if (leader == me && best != game->seatScore((me + 1) % game->seatCount())) {
         m_score->setText(tr("%1 — vous menez").arg(written));
     } else if (best == mine) {
         m_score->setText(tr("%1 — à égalité en tête").arg(written));
@@ -604,6 +605,9 @@ void MainWindow::readSettings() {
     QSettings settings;
     m_settings.tableId =
         settings.value(QStringLiteral("table/longueur"), defaultTableId()).toString();
+    m_settings.seats =
+        qBound(kMinSeats, settings.value(QStringLiteral("table/joueurs"), kSeatCount).toInt(),
+               kMaxSeats);
     // Une table venue d'un fichier de réglages qui n'est pas une des tables
     // offertes -- écrite par une version plus tardive, ou éditée à la main --
     // n'est pas une table où l'on s'assoit.
@@ -626,6 +630,7 @@ void MainWindow::readSettings() {
 void MainWindow::writeSettings() {
     QSettings settings;
     settings.setValue(QStringLiteral("table/longueur"), m_settings.tableId);
+    settings.setValue(QStringLiteral("table/joueurs"), m_settings.seats);
     settings.setValue(QStringLiteral("regles/poignees"), m_settings.poignees);
     settings.setValue(QStringLiteral("regles/chelem"), m_settings.chelem);
     settings.setValue(QStringLiteral("aide/parValeur"), m_settings.holdByValue);

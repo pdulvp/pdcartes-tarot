@@ -208,8 +208,8 @@ private:
     QRectF m_handRow;
 
     bool m_aroundTable = false;
-    QVector<Spot> m_seatBoxes;      // les trois autres, autour ou en bande
-    QRectF m_slotBoxes[4];          // les quatre places du pli, en croix
+    QVector<Spot> m_seatBoxes;      // les autres, autour ou en bande
+    QVector<QRectF> m_slotBoxes;    // les places du pli, en cercle (en croix à 4)
     // Les six cartes du chien, posées en rang au milieu du drap le temps que
     // la table les lise.
     QVector<QRectF> m_chienBoxes;

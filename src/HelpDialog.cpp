@@ -215,10 +215,14 @@ ferait de votre main</td></tr>
 
 <h2>Les cinq tables</h2>
 
-<p>On est quatre, et ce n'est pas réglable. Ce qui change d'une table à l'autre
-est la <b>longueur de la partie</b>, comptée en donnes : une, quatre, huit,
-douze ou vingt. Un multiple de quatre, pour que chacun donne autant de fois. Et
-la longueur n'est pas un détail — sur quatre donnes une garde contre ratée ne
+<p>Ce qui change d'une table à l'autre est la <b>longueur de la partie</b>,
+comptée en donnes : une, quatre, huit, douze ou vingt. Et le <b>nombre de
+joueurs</b> se choisit aussi sur la page de menu : <b>3, 4 ou 5</b>, selon le
+règlement de la FFT. À 3 joueurs chacun a 24 cartes (données 4 par 4) et le
+chien en a 6 ; à 4, 18 cartes et 6 au chien ; à 5, 15 cartes et 3 au chien.
+Les contrats sont les mêmes, et le preneur est seul contre tous les autres —
+à 5 joueurs, il <b>appelle un roi</b> dont le détenteur devient son partenaire.
+La longueur n'est pas un détail — sur quatre donnes une garde contre ratée ne
 se rattrape pas ; sur vingt, il y a le temps de tenter une petite sur une main
 courte, et le temps aussi pour que ce que les six adversaires ont appris
 finisse par se voir.</p>

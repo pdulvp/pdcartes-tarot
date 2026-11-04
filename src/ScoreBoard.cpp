@@ -80,9 +80,10 @@ void ScoreBoard::showDonne(const Tarot *game) {
     // Votre ligne d'abord, puis les trois autres dans l'ordre où ils sont
     // assis : une feuille de marque se lit en commençant par sa propre ligne.
     int bestGain = done.gained[0];
-    for (int at = 1; at < kSeatCount; ++at) bestGain = std::max(bestGain, done.gained[at]);
-    for (int step = 0; step < kSeatCount; ++step) {
-        const int at = (me + step) % kSeatCount;
+    const int seats = game->seatCount();
+    for (int at = 1; at < seats; ++at) bestGain = std::max(bestGain, done.gained[at]);
+    for (int step = 0; step < seats; ++step) {
+        const int at = (me + step) % seats;
         const int team = game->teamOf(at);
         Line line;
         line.name = game->seat(at).human() ? tr("Vous") : game->seat(at).name;
@@ -159,7 +160,7 @@ void ScoreBoard::showMatch(const Tarot *game) {
     m_youWon = winner == me;
 
     int best = game->seatScore(0);
-    for (int at = 1; at < kSeatCount; ++at) best = std::max(best, game->seatScore(at));
+    for (int at = 1; at < game->seatCount(); ++at) best = std::max(best, game->seatScore(at));
     for (Line &line : m_lines) line.winner = line.total == best;
 
     if (winner < 0) {

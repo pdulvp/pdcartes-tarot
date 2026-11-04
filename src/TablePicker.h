@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Cards.h"
+
 #include <QPixmap>
 #include <QPoint>
 #include <QRectF>
@@ -36,9 +38,12 @@ class TablePicker : public QWidget {
 public:
     explicit TablePicker(QWidget *parent = nullptr);
 
-    // Qui a été invité, dans l'ordre. Le premier est votre partenaire ; les
-    // places qui restent vont aux moins joués.
+    // Qui a été invité, dans l'ordre. Le premier s'assoit en face de vous ;
+    // les places qui restent vont aux moins joués.
     QVector<QString> invited() const;
+    // Combien de joueurs à la table : 3, 4 ou 5.
+    int seats() const { return m_seats; }
+    void setSeats(int seats);
 
     // Après un changement de profil, ou quand l'expérience a bougé.
     void reread();
@@ -79,7 +84,9 @@ private:
     QLabel *m_footer = nullptr;
     QVector<QWidget *> m_headings;
     QVector<TileButton *> m_tiles;
+    QVector<TileButton *> m_seatTiles;
     QVector<RivalCard *> m_cards;
+    int m_seats = kSeatCount;
     // L'ordre dans lequel on les a invités, parce que le premier ne s'assoit
     // pas à la même place que le deuxième.
     QVector<QString> m_order;

@@ -32,7 +32,8 @@ enum class PoigneeKind {
     Triple,   // quinze
 };
 
-// Les tailles, au tarot à quatre.
+// Les tailles au tarot à quatre ; à 3 joueurs ce sont 13/15/18 atouts, et à
+// 5 joueurs 8/10/13 (règlement FFT).
 inline constexpr int kSimpleTrumps = 10;
 inline constexpr int kDoubleTrumps = 13;
 inline constexpr int kTripleTrumps = 15;
@@ -42,8 +43,9 @@ inline constexpr int kSimplePoints = 40;
 inline constexpr int kDoublePoints = 60;
 inline constexpr int kTriplePoints = 80;
 
-// Combien d'atouts il faut pour celle-là, et ce qu'elle vaut.
-int poigneeTrumps(PoigneeKind kind);
+// Combien d'atouts il faut pour celle-là, selon le nombre de joueurs, et ce
+// qu'elle vaut.
+int poigneeTrumps(PoigneeKind kind, int seats = kSeatCount);
 int poigneePoints(PoigneeKind kind);
 QString poigneeName(PoigneeKind kind);     // « simple poignée »
 
@@ -57,8 +59,9 @@ int trumpsInHand(const QVector<Card> &hand);
 // atouts plus l'excuse montre une simple poignée faite de ses dix atouts, et
 // garde l'excuse ; une main de neuf atouts plus l'excuse montre les neuf et
 // l'excuse, et dit par là qu'elle n'a pas de dixième.
-PoigneeKind bestPoignee(const QVector<Card> &hand);
+PoigneeKind bestPoignee(const QVector<Card> &hand, int seats = kSeatCount);
 
 // Les cartes qu'elle met sur le tapis : les plus hauts atouts, et l'excuse en
 // dernier lorsqu'elle est nécessaire pour atteindre le compte.
-QVector<Card> poigneeCards(const QVector<Card> &hand, PoigneeKind kind);
+QVector<Card> poigneeCards(const QVector<Card> &hand, PoigneeKind kind,
+                           int seats = kSeatCount);

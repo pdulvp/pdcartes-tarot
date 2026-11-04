@@ -4,11 +4,13 @@
 
 #include <algorithm>
 
-int poigneeTrumps(PoigneeKind kind) {
+int poigneeTrumps(PoigneeKind kind, int seats) {
+    // Règlement FFT : 13/15/18 atouts à 3 joueurs, 10/13/15 à 4, 8/10/13 à 5.
+    const int shift = seats <= 3 ? 3 : (seats >= 5 ? -2 : 0);
     switch (kind) {
-    case PoigneeKind::Simple: return kSimpleTrumps;
-    case PoigneeKind::Double: return kDoubleTrumps;
-    case PoigneeKind::Triple: return kTripleTrumps;
+    case PoigneeKind::Simple: return kSimpleTrumps + shift;
+    case PoigneeKind::Double: return kDoubleTrumps + shift;
+    case PoigneeKind::Triple: return kTripleTrumps + shift;
     case PoigneeKind::Aucune: break;
     }
     return 0;
@@ -42,16 +44,16 @@ int trumpsInHand(const QVector<Card> &hand) {
     return found;
 }
 
-PoigneeKind bestPoignee(const QVector<Card> &hand) {
+PoigneeKind bestPoignee(const QVector<Card> &hand, int seats) {
     const int all = trumpsInHand(hand);
-    if (all >= kTripleTrumps) return PoigneeKind::Triple;
-    if (all >= kDoubleTrumps) return PoigneeKind::Double;
-    if (all >= kSimpleTrumps) return PoigneeKind::Simple;
+    if (all >= poigneeTrumps(PoigneeKind::Triple, seats)) return PoigneeKind::Triple;
+    if (all >= poigneeTrumps(PoigneeKind::Double, seats)) return PoigneeKind::Double;
+    if (all >= poigneeTrumps(PoigneeKind::Simple, seats)) return PoigneeKind::Simple;
     return PoigneeKind::Aucune;
 }
 
-QVector<Card> poigneeCards(const QVector<Card> &hand, PoigneeKind kind) {
-    const int wanted = poigneeTrumps(kind);
+QVector<Card> poigneeCards(const QVector<Card> &hand, PoigneeKind kind, int seats) {
+    const int wanted = poigneeTrumps(kind, seats);
     if (wanted <= 0) return {};
 
     QVector<Card> trumps;

@@ -15,6 +15,7 @@
 #include "TitleMark.h"
 
 #include <QAction>
+#include <QButtonGroup>
 #include <QFontInfo>
 #include <QEasingCurve>
 #include <QFrame>
@@ -215,6 +216,35 @@ TablePicker::TablePicker(QWidget *parent) : QWidget(parent) {
     m_headings.append(tableHeading);
     rows->addWidget(tableHeading);
     rows->addSpacing(kHeadingGap);
+
+    // Combien de joueurs à la table : 3, 4 ou 5 (règlement FFT). C'est le
+    // choix d'avant la longueur, et il décide de combien de places il reste
+    // sous les invitations : à 5 joueurs le preneur appelle un roi.
+    auto *seatTiles = new QHBoxLayout;
+    seatTiles->setSpacing(kFeltGap);
+    auto *seatGroup = new QButtonGroup(page);
+    seatGroup->setExclusive(true);
+    const int seatOptions[3] = {3, 4, 5};
+    for (const int n : seatOptions) {
+        auto *tile = new TileButton(page);
+        tile->setText(tr("%1 joueurs").arg(n));
+        tile->setBlurb(n == 3  ? tr("24 cartes chacun, chien de 6")
+                        : n == 5 ? tr("15 cartes chacun, chien de 3, appel du roi")
+                                 : tr("18 cartes chacun, chien de 6"));
+        tile->setCorner(QString::number(n));
+        tile->setTileSize(QSize(148, 118));
+        tile->setOnFelt(true);
+        tile->setCheckable(true);
+        tile->setChecked(n == m_seats);
+        connect(tile, &TileButton::clicked, this, [this, n] { setSeats(n); });
+        seatGroup->addButton(tile);
+        m_seatTiles.append(tile);
+        seatTiles->addWidget(tile);
+    }
+    seatTiles->addStretch();
+    rows->addLayout(seatTiles);
+    rows->addSpacing(12);
+
     auto *tiles = new QHBoxLayout;
     tiles->setSpacing(kFeltGap);
     for (const TableKind &kind : tableKinds()) {
@@ -310,6 +340,17 @@ void TablePicker::resizeEvent(QResizeEvent *event) {
 
 QVector<QString> TablePicker::invited() const { return m_order; }
 
+void TablePicker::setSeats(int seats) {
+    const int clamped = qBound(kMinSeats, seats, kMaxSeats);
+    if (clamped == m_seats) return;
+    m_seats = clamped;
+    const int seatOptions[3] = {3, 4, 5};
+    for (int i = 0; i < m_seatTiles.size() && i < 3; ++i) {
+        m_seatTiles.at(i)->setChecked(seatOptions[i] == m_seats);
+    }
+    reread();
+}
+
 void TablePicker::showRivalMenu(RivalCard *card, const QPoint &where) {
     const Rival &who = rivalById(card->rivalId());
     const Learning learning = learningFor(who.id);
@@ -369,39 +410,44 @@ void TablePicker::askResetRival(const QString &rivalId) {
 }
 
 void TablePicker::reread() {
-    // Les cartes disent où chacun s'assoira, pour que le partenaire ne soit
-    // pas une surprise de la première donne.
+    // Les cartes disent où chacun s'assoira, et combien de places il reste :
+    // le nombre de joueurs se choisit sous les invitations.
+    const int seats = m_seats;
     QStringList names;
-    for (int i = 0; i < m_order.size(); ++i) names.append(rivalName(m_order.at(i)));
+    for (int i = 0; i < m_order.size() && i < seats - 1; ++i) {
+        names.append(rivalName(m_order.at(i)));
+    }
     for (RivalCard *card : m_cards) {
         const int rank = m_order.indexOf(card->rivalId());
         card->setInvited(rank >= 0);
         if (rank < 0) {
             card->setSeatNote(QString());
+        } else if (rank >= seats - 1) {
+            card->setSeatNote(tr("pas de place"));
         } else if (rank == 0) {
             card->setSeatNote(tr("en face de vous"));
-        } else if (rank < kSeatCount - 1) {
-            card->setSeatNote(tr("contre vous"));
         } else {
-            card->setSeatNote(tr("pas de place"));
+            card->setSeatNote(tr("à la table"));
         }
         card->reread();
     }
 
+    const QString places =
+        countedText(seats - 1, tr("place"), tr("places"));
     if (names.isEmpty()) {
-        m_rivalNote->setText(tr("Les trois places vont aux moins joués, pour que les six "
+        m_rivalNote->setText(tr("Les %1 vont aux moins joués, pour que les six "
                                 "progressent ensemble. Cliquez sur une carte pour inviter "
-                                "quelqu'un : le premier invité s'assoit en face de vous. "
-                                "c'est donc lui qui joue avec vous."));
+                                "quelqu'un : le premier invité s'assoit en face de vous.")
+                                 .arg(places));
         return;
     }
-    m_rivalNote->setText(tr("Votre partenaire : %1. %2Les places qui restent vont aux moins "
+    m_rivalNote->setText(tr("En face de vous : %1. %2Les places qui restent vont aux moins "
                             "joués.")
                              .arg(names.first(),
                                   names.size() > 1
-                                      ? tr("Contre vous : %1. ")
-                                            .arg(QStringList(names.mid(1, kSeatCount - 2))
-                                                     .join(QStringLiteral(", ")))
+                                      ? tr("À la table : %1. ")
+                                            .arg(QStringList(names.mid(1)).join(
+                                                QStringLiteral(", ")))
                                       : QString()));
 }
 

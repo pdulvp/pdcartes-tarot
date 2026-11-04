@@ -85,17 +85,24 @@ inline bool operator==(const Card &a, const Card &b) { return a.id == b.id; }
 QVector<Card> freshPack();
 void shuffleCards(QVector<Card> &cards);
 
-// Quatre joueurs, dix-huit cartes chacun, six au chien, dix-huit plis : les
-// nombres sont écrits ensemble parce qu'ils sont le même fait vu de plusieurs
-// côtés. Quatre fois dix-huit et six font bien soixante-dix-huit, et le jeu
-// est donc épuisé à la fin de la donne.
-inline constexpr int kSeatCount = 4;
-inline constexpr int kHandSize = 18;
-inline constexpr int kChienSize = 6;
-inline constexpr int kTrickCount = kHandSize;
-// Les cartes sont données par paquets de trois, ce qui est une règle et non
-// une commodité : donner une à une permettrait de monter un jeu.
-inline constexpr int kDealPacket = 3;
+// Le tarot se joue à 3, 4 ou 5 joueurs. Quatre est la valeur ordinaire et
+// celle qui reste écrite dans les réglages d'avant ; le nombre de sièges
+// d'une partie se lit dans `Tarot::seatCount()`, et tout ce qui en dépend
+// passe par les fonctions ci-dessous.
+inline constexpr int kSeatCount = 4;    // le nombre de joueurs par défaut
+inline constexpr int kMinSeats = 3;
+inline constexpr int kMaxSeats = 5;     // borne des tableaux de sièges
+
+// La taille d'une main et celle du chien selon le nombre de joueurs, au
+// règlement FFT : 24 cartes et 6 au chien à 3 joueurs (distribuées 4 par 4),
+// 18 et 6 à 4 (3 par 3), 15 et 3 à 5 (3 par 3). Dans les trois cas le jeu
+// de soixante-dix-huit cartes est épuisé à la fin de la donne.
+int handSizeFor(int seats);    // 24, 18, 15
+int chienSizeFor(int seats);   // 6, 6, 3
+int dealPacketFor(int seats);  // paquet de distribution : 4 à 3 joueurs, 3 sinon
+
+// Le nombre de plis d'une donne : autant que de cartes en main.
+inline int trickCountFor(int seats) { return handSizeFor(seats); }
 
 // Ce que vaut la donne, en demi-points.
 //

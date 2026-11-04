@@ -95,7 +95,7 @@ int Tarot::trickValue() const {
 }
 
 int Tarot::seatScore(int at) const {
-    if (at < 0 || at >= kSeatCount) return 0;
+    if (at < 0 || at >= m_seats.size()) return 0;
     return m_score[at];
 }
 
@@ -135,6 +135,8 @@ void Tarot::sortSeatHand(int at, bool byValue) {
 void Tarot::startMatch(const QVector<SeatSpec> &specs, int donnes, bool withPoignees,
                        bool withChelem) {
     m_seats.clear();
+    // Le tarot se joue à 3, 4 ou 5 joueurs ; le nombre de sièges vient de la
+    // liste fournie, et tout ce qui en dépend se lit dans seatCount().
     for (const SeatSpec &spec : specs) {
         Seat seat;
         seat.rivalId = spec.rivalId;
@@ -148,7 +150,7 @@ void Tarot::startMatch(const QVector<SeatSpec> &specs, int donnes, bool withPoig
     m_donneNumber = 0;
     m_dealsGiven = 0;
     m_matchWinner = -1;
-    for (int at = 0; at < kSeatCount; ++at) m_score[at] = 0;
+    for (int at = 0; at < m_seats.size(); ++at) m_score[at] = 0;
     // Le donneur ne parle pas le premier, alors c'est la dernière place qui
     // donne : la première chose qui arrive dans une partie est une décision du
     // joueur, et non trois adversaires qui réfléchissent.
@@ -157,11 +159,12 @@ void Tarot::startMatch(const QVector<SeatSpec> &specs, int donnes, bool withPoig
 }
 
 void Tarot::startDonne() {
-    if (m_seats.size() != kSeatCount) return;
+    if (m_seats.size() < kMinSeats || m_seats.size() > kMaxSeats) return;
     // La donne tourne d'une place à chaque fois, et l'entame avec elle. Une
     // donne annulée a déjà fait tourner le donneur en s'annulant : on ne le
     // fait donc tourner ici que si la précédente a été jouée.
-    if (m_donneNumber > 0 || m_result.annulled) m_dealer = (m_dealer + 1) % kSeatCount;
+    const int seats = m_seats.size();
+    if (m_donneNumber > 0 || m_result.annulled) m_dealer = (m_dealer + 1) % seats;
 
     m_trick.clear();
     m_lastTrick.clear();
@@ -216,10 +219,14 @@ void Tarot::startDonne() {
     if (m_redeals > 0) {
         Q_EMIT acted(m_dealer, tr("%1. Petit sec : on remélange et on redonne.").arg(dealer));
     } else {
-        Q_EMIT acted(m_dealer, tr("%1 : dix-huit cartes chacun, six au chien.").arg(dealer));
+        Q_EMIT acted(m_dealer,
+                     tr("%1 : %2 cartes chacun, %3 au chien.")
+                         .arg(dealer)
+                         .arg(handSize())
+                         .arg(chienSize()));
     }
 
-    m_turn = (m_dealer + 1) % kSeatCount;
+    m_turn = (m_dealer + 1) % seats;
     m_phase = Phase::Bidding;
     Q_EMIT changed();
     Q_EMIT turnBegan(m_turn);
@@ -240,20 +247,21 @@ void Tarot::deal() {
     //
     // Les six cartes du chien sont posées après le premier paquet et avant le
     // dernier, réparties au long de la distribution.
-    const int packets = (kSeatCount * kHandSize) / kDealPacket;   // vingt-quatre
-    int chienAt = 0;
-    const int chienEvery = packets / (kChienSize + 1);
-    for (int packet = 0; packet < packets; ++packet) {
-        if (m_chien.size() < kChienSize && packet > 0 && packet % chienEvery == 0 &&
-            packet < packets - 1) {
+    const int seats = m_seats.size();
+    const int packet = dealPacketFor(seats);
+    const int packets = (seats * handSize()) / packet;
+    const int chien = chienSize();
+    const int chienEvery = packets / (chien + 1);
+    for (int at = 0; at < packets; ++at) {
+        if (m_chien.size() < chien && at > 0 && at % chienEvery == 0 && at < packets - 1) {
             m_chien.append(stock.takeLast());
         }
-        const int who = (m_dealer + 1 + packet % kSeatCount) % kSeatCount;
-        for (int card = 0; card < kDealPacket; ++card) m_seats[who].hand.append(stock.takeLast());
+        const int who = (m_dealer + 1 + at % seats) % seats;
+        for (int card = 0; card < packet; ++card) m_seats[who].hand.append(stock.takeLast());
     }
     // Ce qui reste va au chien : le compte retombe toujours juste, les
     // paquets et le chien étant fixés d'avance.
-    while (m_chien.size() < kChienSize && !stock.isEmpty()) m_chien.append(stock.takeLast());
+    while (m_chien.size() < chien && !stock.isEmpty()) m_chien.append(stock.takeLast());
 
     for (Seat &seat : m_seats) sortBySuit(seat.hand);
 }
@@ -338,8 +346,9 @@ void Tarot::nextBidder() {
     // Un seul tour de table : chacun parle une fois, et le plus offrant joue.
     // C'est ce qui sépare l'enchère du tarot de celle de la coinche, où l'on
     // repasse tant que quelqu'un surenchérit.
-    if (m_bidsThisRound < kSeatCount) {
-        m_turn = (m_turn + 1) % kSeatCount;
+    const int seats = m_seats.size();
+    if (m_bidsThisRound < seats) {
+        m_turn = (m_turn + 1) % seats;
         Q_EMIT changed();
         Q_EMIT turnBegan(m_turn);
         return;
@@ -433,7 +442,7 @@ int Tarot::forcedTrumpsInEcart() const {
         if (card.rank == kRoi) continue;
         ++free;
     }
-    return std::max(0, kChienSize - free);
+    return std::max(0, chienSize() - free);
 }
 
 bool Tarot::mayDiscard(const Card &card) const {
@@ -451,7 +460,7 @@ bool Tarot::setEcart(const QVector<int> &cardIds, QString *why) {
         if (why) *why = tr("Ce n'est pas le moment de faire son écart.");
         return false;
     }
-    if (cardIds.size() != kChienSize) {
+    if (cardIds.size() != chienSize()) {
         if (why) *why = tr("L'écart est de six cartes, ni plus ni moins.");
         return false;
     }
@@ -542,7 +551,7 @@ void Tarot::beginPlay() {
     // L'entame est à la droite du donneur, sauf chelem annoncé : celui qui
     // s'engage aux dix-huit plis entame, parce qu'il ne peut en tenir aucun
     // s'il ne mène pas le premier.
-    m_turn = m_chelemAnnounced ? m_taker : (m_dealer + 1) % kSeatCount;
+    m_turn = m_chelemAnnounced ? m_taker : (m_dealer + 1) % m_seats.size();
     for (Seat &seat : m_seats) sortBySuit(seat.hand);
     Q_EMIT changed();
     Q_EMIT turnBegan(m_turn);
@@ -554,7 +563,7 @@ void Tarot::beginPlay() {
 PoigneeKind Tarot::poigneeAvailable(int at) const {
     if (!m_withPoignees) return PoigneeKind::Aucune;
     if (at < 0 || at >= m_seats.size()) return PoigneeKind::Aucune;
-    return bestPoignee(seat(at).hand);
+    return bestPoignee(seat(at).hand, m_seats.size());
 }
 
 bool Tarot::mayShowPoignee(int at) const {
@@ -570,7 +579,7 @@ bool Tarot::showPoignee(int at, PoigneeKind kind) {
     who.declared = true;
     if (kind == PoigneeKind::Aucune) return true;
     if (!m_withPoignees) return true;
-    const QVector<Card> shown = poigneeCards(who.hand, kind);
+    const QVector<Card> shown = poigneeCards(who.hand, kind, m_seats.size());
     if (shown.isEmpty()) return false;
 
     who.poignee = kind;
@@ -740,8 +749,8 @@ bool Tarot::play(int cardId, QString *why) {
     Q_EMIT acted(at, seat(at).human() ? tr("Vous jouez %1.").arg(cardName(card))
                                       : tr("%1 joue %2.").arg(seat(at).name, cardName(card)));
 
-    if (m_trick.size() < kSeatCount) {
-        m_turn = (m_turn + 1) % kSeatCount;
+    if (m_trick.size() < m_seats.size()) {
+        m_turn = (m_turn + 1) % m_seats.size();
         Q_EMIT changed();
         Q_EMIT turnBegan(m_turn);
         return true;
@@ -759,7 +768,7 @@ void Tarot::sweepTrick() {
 
     const int winner = m_trickWinner;
     const int team = teamOf(winner);
-    const bool last = m_trickNumber >= kTrickCount;
+    const bool last = m_trickNumber >= trickCount();
 
     // L'excuse, qui est la seule carte à ne pas suivre le pli.
     //
@@ -773,7 +782,7 @@ void Tarot::sweepTrick() {
     for (const Played &played : m_trick) {
         if (!played.card.excuse()) continue;
         excuseTeam = teamOf(played.seat);
-        excuseKept = !last || m_tricks[excuseTeam] == kTrickCount - 1;
+        excuseKept = !last || m_tricks[excuseTeam] == trickCount() - 1;
     }
 
     for (const Played &played : m_trick) {
@@ -863,7 +872,7 @@ void Tarot::finishDonne() {
 
     // Les poignées montrées, de part et d'autre : elles s'ajoutent hors
     // multiplicateur, et toujours au camp qui gagne la donne.
-    for (int at = 0; at < kSeatCount; ++at) {
+    for (int at = 0; at < m_seats.size(); ++at) {
         const PoigneeKind kind = m_seats.at(at).poignee;
         if (kind == PoigneeKind::Aucune) continue;
         done.poigneePoints += poigneePoints(kind);
@@ -878,8 +887,8 @@ void Tarot::finishDonne() {
 
     // Le chelem. Il ne dépend pas du contrat et ne se multiplie pas : c'est
     // une prime à part, qui s'ajoute une fois tout le reste compté.
-    const bool takerSlam = m_tricks[kTakerTeam] == kTrickCount;
-    const bool defenceSlam = m_tricks[kDefenceTeam] == kTrickCount;
+    const bool takerSlam = m_tricks[kTakerTeam] == trickCount();
+    const bool defenceSlam = m_tricks[kDefenceTeam] == trickCount();
     done.chelemAnnounced = m_chelemAnnounced;
     done.chelemMade = takerSlam;
     if (m_chelemAnnounced) {
@@ -892,8 +901,11 @@ void Tarot::finishDonne() {
     signed_ += done.chelem;
 
     done.unit = signed_;
-    for (int at = 0; at < kSeatCount; ++at) {
-        done.gained[at] = at == m_taker ? signed_ * (kSeatCount - 1) : -signed_;
+    // La marque : le preneur empoche l'unité multipliée par le nombre de
+    // défenseurs, et chacun d'eux la perd — la somme est nulle à 3, 4 et 5.
+    const int seats = m_seats.size();
+    for (int at = 0; at < seats; ++at) {
+        done.gained[at] = at == m_taker ? signed_ * (seats - 1) : -signed_;
         m_score[at] += done.gained[at];
     }
 
@@ -908,10 +920,10 @@ void Tarot::finishDonne() {
     // La partie est finie : celui qui mène a gagné. Deux joueurs à égalité en
     // tête et la partie est nulle, ce qui arrive et qui se dit.
     int best = m_score[0];
-    for (int at = 1; at < kSeatCount; ++at) best = std::max(best, m_score[at]);
+    for (int at = 1; at < m_seats.size(); ++at) best = std::max(best, m_score[at]);
     int leaders = 0;
     int which = -1;
-    for (int at = 0; at < kSeatCount; ++at) {
+    for (int at = 0; at < m_seats.size(); ++at) {
         if (m_score[at] != best) continue;
         ++leaders;
         which = at;

@@ -203,9 +203,10 @@ QVector<SeatSpec> TablePage::chooseSeats() const {
     // Ceux qu'on a demandés d'abord, puis les moins joués : comme ça les six
     // progressent à peu près ensemble au lieu de laisser les trois derniers
     // débutants pour toujours.
+    const int seats = qBound(kMinSeats, m_settings.seats, kMaxSeats);
     QVector<QString> order;
     for (const QString &id : m_settings.invited) {
-        if (order.size() >= kSeatCount - 1) break;
+        if (order.size() >= seats - 1) break;
         if (!order.contains(id)) order.append(id);
     }
 
@@ -217,15 +218,26 @@ QVector<SeatSpec> TablePage::chooseSeats() const {
         return learningFor(a.id).donnesPlayed < learningFor(b.id).donnesPlayed;
     });
     for (const Rival &rival : rest) {
-        if (order.size() >= kSeatCount - 1) break;
+        if (order.size() >= seats - 1) break;
         order.append(rival.id);
     }
 
-    // Le premier invité s'assoit en face de vous. Au tarot à quatre il n'est
-    // pas votre partenaire -- les camps se refont à chaque donne -- mais c'est
-    // la place qu'on regarde le plus, et c'est donc celle qu'on choisit.
-    const QVector<int> places = {2, 1, 3};
-    QVector<SeatSpec> round(kSeatCount);
+    // Le premier invité s'assoit en face de vous (à peu près, quand le nombre
+    // de places est impair). Au tarot il n'est pas votre partenaire -- les
+    // camps se refont à chaque donne, sauf à 5 joueurs avec l'appel du roi --
+    // mais c'est la place qu'on regarde le plus, et c'est donc celle qu'on
+    // choisit. Ensuite on remplit en alternant les deux côtés.
+    QVector<int> places;
+    for (int side = 0; side < seats - 1; ++side) {
+        if (side == 0) {
+            places.append(seats / 2 + (seats % 2 == 0 ? 0 : 1));
+        } else if (side % 2 == 1) {
+            places.append(side);
+        } else {
+            places.append(seats - side / 2);
+        }
+    }
+    QVector<SeatSpec> round(seats);
     round[0] = you;
     for (int i = 0; i < order.size() && i < places.size(); ++i) {
         const Rival &rival = rivalById(order.at(i));
@@ -336,7 +348,7 @@ int TablePage::mySeat() const {
 }
 
 bool TablePage::playing() const {
-    return m_game->seatCount() == kSeatCount && m_game->phase() != Phase::Idle;
+    return m_game->seatCount() >= kMinSeats && m_game->phase() != Phase::Idle;
 }
 
 QString TablePage::subtitle() const {
@@ -436,7 +448,7 @@ void TablePage::askPoignee(int seat) {
                  tr("Les %1 atouts sont posés sur la table et vus de tous, puis repris en "
                     "main. Elle vaut %2 points, et ces points-là vont au camp qui gagne la "
                     "donne — le vôtre ou l'autre.")
-                     .arg(poigneeTrumps(kind))
+                     .arg(poigneeTrumps(kind, m_game->seatCount()))
                      .arg(pointsText(poigneePoints(kind))));
     m_game->showPoignee(seat, show ? kind : PoigneeKind::Aucune);
 }
@@ -491,7 +503,7 @@ void TablePage::playRivalEcart() {
             // premières cartes que les règles acceptent.
             QVector<int> fallback;
             for (const Card &card : m_game->seat(at).hand) {
-                if (fallback.size() >= kChienSize) break;
+                if (fallback.size() >= m_game->chienSize()) break;
                 if (m_game->mayDiscard(card)) fallback.append(card.id);
             }
             m_game->setEcart(fallback);
@@ -737,8 +749,10 @@ void TablePage::onCardPressed(int cardId) {
                                : tr("Un roi ne s'écarte pas.")));
             return;
         }
-        if (!m_view->picked().contains(cardId) && m_view->picked().size() >= kChienSize) {
-            grumble(tr("Six cartes sont déjà choisies : reprenez-en une d'abord."));
+        if (!m_view->picked().contains(cardId) &&
+            m_view->picked().size() >= m_game->chienSize()) {
+            grumble(tr("%1 cartes sont déjà choisies : reprenez-en une d'abord.")
+                        .arg(m_game->chienSize()));
             return;
         }
         m_view->togglePicked(cardId);
@@ -830,8 +844,8 @@ void TablePage::updateActions() {
     if (reading && !mineToTake && !m_chienBeat->isActive()) m_chienBeat->start(chienMs());
 
     m_ecart->setVisible(discarding);
-    m_ecart->setEnabled(discarding && m_view->picked().size() == kChienSize);
-    m_ecart->setText(tr("Écarter (%1/%2)").arg(m_view->picked().size()).arg(kChienSize));
+    m_ecart->setEnabled(discarding && m_view->picked().size() == m_game->chienSize());
+    m_ecart->setText(tr("Écarter (%1/%2)").arg(m_view->picked().size()).arg(m_game->chienSize()));
 
     m_play->setVisible(!bidding && !discarding && !mineToTake);
     const int chosen = m_view->chosen();
@@ -922,7 +936,7 @@ void TablePage::sayWhatToDo() {
             m_view->say(tr("Le chien ne se voit pas : la donne se joue telle qu'elle est."));
             return;
         }
-        const int left = kChienSize - m_view->picked().size();
+        const int left = m_game->chienSize() - m_view->picked().size();
         const int forced = m_game->forcedTrumpsInEcart();
         if (left > 0 && forced > 0) {
             m_view->say(tr("Encore %1 à écarter — et il vous faut y mettre %2, faute "
