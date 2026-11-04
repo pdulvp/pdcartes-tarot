@@ -282,6 +282,7 @@ void TablePage::startMatch(const GameSettings &settings) {
     m_donneCounted = false;
     m_dealShown = -1;
 
+    m_game->setCallHidden(settings.hideCall);
     const QVector<SeatSpec> seats = chooseSeats();
     m_skills.clear();
     for (const SeatSpec &spec : seats) {
@@ -303,6 +304,7 @@ void TablePage::applySettings(const GameSettings &settings) {
     const QString table = m_settings.tableId;
     const bool poignees = m_settings.poignees;
     const bool chelem = m_settings.chelem;
+    const bool hideCall = m_settings.hideCall;
     m_settings = settings;
     // Ni la table ni les règles ne changent une partie en cours : jeter une
     // donne à moitié jouée parce qu'un réglage a bougé serait un mauvais
@@ -310,6 +312,7 @@ void TablePage::applySettings(const GameSettings &settings) {
     m_settings.tableId = table;
     m_settings.poignees = poignees;
     m_settings.chelem = chelem;
+    m_settings.hideCall = hideCall;
     m_hint->setVisible(m_settings.offerHints);
     m_view->setZoom(m_settings.zoom);
     // L'ordre de la main, lui, change tout de suite : on l'a changé en

@@ -223,6 +223,11 @@ public:
     bool callKing(int at, Suit suit, QString *why = nullptr);
     int callee() const { return m_callee; }
     Suit calledSuit() const { return m_calledSuit; }
+    // L'appel peut être caché : personne ne sait qui est l'appelé tant que la
+    // carte appelée n'a pas été jouée (où elle se découvre, publiquement).
+    void setCallHidden(bool hidden) { m_callHidden = hidden; }
+    bool callHidden() const { return m_callHidden; }
+    bool callRevealed() const { return m_callRevealed; }
     Contract contract() const { return m_contract; }
     int multiplier() const { return contractMultiplier(m_contract); }
 
@@ -370,6 +375,8 @@ private:
     int m_callee = -1;
     Suit m_calledSuit = Suit::Pique;
     int m_calledRank = 0;
+    bool m_callHidden = false;
+    bool m_callRevealed = false;
     Contract m_contract = Contract::Passe;
     bool m_ecartNeeded = false;
     bool m_chelemAnnounced = false;

@@ -175,6 +175,7 @@ void Tarot::startDonne() {
     m_callee = -1;
     m_calledSuit = Suit::Pique;
     m_calledRank = 0;
+    m_callRevealed = false;
     m_contract = Contract::Passe;
     m_ecartNeeded = false;
     m_chelemAnnounced = false;
@@ -477,6 +478,12 @@ bool Tarot::callKing(int at, Suit suit, QString *why) {
                                .arg(cardName(called))
                          : tr("%1 appelle %2 : personne ne répond, il joue seul.")
                                .arg(who.name, cardName(called)));
+    } else if (m_callHidden) {
+        // Appel caché : on annonce la carte appelée, pas son détenteur.
+        Q_EMIT acted(m_taker,
+                     who.human() ? tr("Vous appelez %1 : le détenteur sera votre partenaire.")
+                                 : tr("%1 appelle %2 : le détenteur sera son partenaire.")
+                                       .arg(who.name, cardName(called)));
     } else {
         const Seat &partner = seat(m_callee);
         Q_EMIT acted(m_taker,
@@ -872,6 +879,12 @@ bool Tarot::play(int cardId, QString *why) {
     const Card card = takeCard(here().hand, cardId);
     m_trick.append({at, card});
     m_history.append({at, card});
+    // La carte appelée posée sur le tapis se découvre : tout le monde sait
+    // alors qui est le partenaire du preneur.
+    if (m_seats.size() == 5 && m_callee >= 0 && card.suit == m_calledSuit &&
+        card.rank == m_calledRank) {
+        m_callRevealed = true;
+    }
 
     Q_EMIT acted(at, seat(at).human() ? tr("Vous jouez %1.").arg(cardName(card))
                                       : tr("%1 joue %2.").arg(seat(at).name, cardName(card)));

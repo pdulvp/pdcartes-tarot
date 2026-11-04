@@ -825,7 +825,10 @@ void TableView::paintSeatPlaque(QPainter *painter, const QRectF &box, int at) {
     painter->setFont(tag);
     const QFontMetricsF tagMetrics(tag);
     const int callee = m_game->callee();
-    const bool called = callee >= 0 && at == callee;
+    // Appel caché : tant que la carte appelée n'a pas été jouée, personne ne
+    // sait qui est l'appelé, et la pastille ne le dit pas.
+    const bool callKnown = !m_game->callHidden() || m_game->callRevealed();
+    const bool called = callKnown && callee >= 0 && at == callee;
     const QString role = takerSeat < 0 ? tr("à l'enchère")
                          : taker       ? tr("preneur")
                          : called && takerSeat == mySeat() ? tr("avec vous")

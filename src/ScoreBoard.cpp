@@ -91,7 +91,10 @@ void ScoreBoard::showDonne(const Tarot *game) {
         line.ours = at == me;
         line.hue = line.ours ? currentPalette().hue : game->seat(at).hue;
         line.taker = at == done.taker;
-        line.callee = at == done.callee;
+        // Appel caché : la feuille ne dit « appelé » que si la révélation a
+        // eu lieu (à la fin d'une donne, la carte appelée a toujours été
+        // jouée, donc c'est le cas ; le garde-fou reste pour la propreté).
+        line.callee = at == done.callee && (!game->callHidden() || game->callRevealed());
         line.tricks = done.tricks[team];
         line.points = done.points[team];
         line.gained = done.gained[at];
