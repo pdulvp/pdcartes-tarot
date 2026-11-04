@@ -25,7 +25,7 @@ constexpr qreal kCorner = 12.0;
 RivalCard::RivalCard(const QString &rivalId, QWidget *parent)
     : QWidget(parent), m_rivalId(rivalId) {
     setAttribute(Qt::WA_Hover);
-    setMinimumSize(286, 112);
+    setMinimumSize(286, 86);
 
     // L'aperçu n'apparaît qu'après un maintien du pointeur sur la carte : un
     // déplacement à travers les six n'en déclenche aucun.
@@ -37,7 +37,7 @@ RivalCard::RivalCard(const QString &rivalId, QWidget *parent)
     });
 }
 
-QSize RivalCard::sizeHint() const { return QSize(300, 118); }
+QSize RivalCard::sizeHint() const { return QSize(300, 86); }
 
 void RivalCard::setInvited(bool invited) {
     if (m_invited == invited) return;
@@ -210,12 +210,7 @@ void RivalCard::paintEvent(QPaintEvent *) {
     aside.setCapitalization(QFont::MixedCase);
     aside.setLetterSpacing(QFont::PercentageSpacing, 100);
     painter.setFont(aside);
-    painter.setPen(asideInk);
     const QFontMetricsF asideMetrics(aside);
-    painter.drawText(QRectF(left, y, wide, asideMetrics.height()),
-                     Qt::AlignLeft | Qt::AlignVCenter,
-                     temperamentLine(rivalInnate(who.id)));
-    y += asideMetrics.height() + 5.0;
 
     // Les étoiles, la jauge, et le chiffre derrière elles -- parce que la
     // jauge dit "bientôt" et le chiffre dit de combien.

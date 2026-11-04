@@ -66,8 +66,8 @@ int main(int argc, char **argv) {
     for (TileButton *t : seatTiles) {
         std::printf("  tuile [%s] %dx%d\n", qPrintable(t->text()), t->width(),
                     t->height());
-        if (t->height() < 140) {
-            std::printf("ECHEC tuile %s trop basse (%d)\n", qPrintable(t->text()), t->height());
+        if (t->height() < 160) {
+            std::printf("ECHEC tuile %s trop basse (attendu >= 160) (%d)\n", qPrintable(t->text()), t->height());
             ++failures;
         }
     }

@@ -181,7 +181,7 @@ TablePicker::TablePicker(QWidget *parent) : QWidget(parent) {
                         : n == 5 ? tr("15 cartes chacun, chien de 3, appel du roi")
                                  : tr("18 cartes chacun, chien de 6"));
         tile->setCorner(QString::number(n));
-        tile->setTileSize(QSize(148, 150));
+        tile->setTileSize(QSize(148, 172));
         tile->setOnFelt(true);
         tile->setCheckable(true);
         tile->setChecked(n == m_seats);
