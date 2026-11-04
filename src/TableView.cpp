@@ -783,7 +783,8 @@ void TableView::paintSeatPlaque(QPainter *painter, const QRectF &box, int at) {
     const bool playing = m_game->phase() == Phase::Playing ||
                          m_game->phase() == Phase::Bidding || m_game->phase() == Phase::Ecart;
     const bool active = playing && m_game->turn() == at;
-    const bool taker = m_game->taker() == at;
+    const int takerSeat = m_game->taker();
+    const bool taker = takerSeat == at;
 
     paintPlaqueBody(painter, box, scheme, mine, active);
 
@@ -803,16 +804,20 @@ void TableView::paintSeatPlaque(QPainter *painter, const QRectF &box, int at) {
 
     // Preneur ou défenseur, écrit en clair dans le coin : au tarot les camps
     // se refont à chaque donne, et c'est la première chose à savoir d'un
-    // joueur avant de poser une carte. Posée avant le nom, parce que c'est
-    // elle qui décide de la place qui reste au nom.
+    // joueur avant de poser une carte. Le preneur est seul contre les trois
+    // autres : quand c'est vous qui prenez, les autres sont « contre vous » ;
+    // quand c'est l'un d'eux, les deux autres sont « avec vous ». Posée avant
+    // le nom, parce que c'est elle qui décide de la place qui reste au nom.
     QFont tag = plainFont(painter);
     tag.setBold(true);
     tag.setPixelSize(plaqueTextSize(inner.height(), kPlaqueBadgeSize, 9));
     tag.setCapitalization(QFont::AllUppercase);
     painter->setFont(tag);
     const QFontMetricsF tagMetrics(tag);
-    const QString role = m_game->taker() < 0 ? tr("à l'enchère")
-                                             : (taker ? tr("preneur") : tr("avec vous"));
+    const QString role = takerSeat < 0      ? tr("à l'enchère")
+                         : taker            ? tr("preneur")
+                         : takerSeat == mySeat() ? tr("contre vous")
+                                                 : tr("avec vous");
     QRectF chip(0, 0, tagMetrics.horizontalAdvance(role) + 12.0, tagMetrics.height() + 3.0);
     chip.moveTopRight(QPointF(inner.right(), inner.top() + 1.0));
     painter->setPen(Qt::NoPen);
