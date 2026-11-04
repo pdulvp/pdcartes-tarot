@@ -99,10 +99,12 @@ endfunction()
 pdcartes_tarot_link("editeur-de-cartes" PDCARTES_TAROT_LINK_CARD_EDITOR)
 configure_file(src/Links.h.in ${CMAKE_CURRENT_BINARY_DIR}/Links.h @ONLY)
 
-add_executable(pdcartes-tarot
+# Le cœur du jeu est compilé une seule fois, en bibliothèque d'objets que
+# l'exécutable et les tests (tests/) se partagent : rien n'est compilé deux
+# fois, et les tests voient exactement le code que le jeu exécute.
+add_library(pdcartes-tarot-core OBJECT
     ${BUILD_VERSION_CPP}
     src/Version.h
-    src/main.cpp
     src/MainWindow.cpp
     src/MainWindow.h
     # Le look : la couleur du drap, la plaque du profil et l'habillage des
@@ -176,9 +178,18 @@ add_executable(pdcartes-tarot
     src/HelpDialog.h
 )
 
+target_include_directories(pdcartes-tarot-core PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(pdcartes-tarot-core PUBLIC cartotheque Qt6::Widgets)
+
+# L'exécutable n'est plus que main.cpp et le cœur ci-dessus.
+add_executable(pdcartes-tarot src/main.cpp)
+target_link_libraries(pdcartes-tarot PRIVATE pdcartes-tarot-core)
+
 # Pour que le tampon soit écrit avant que les sources qui le portent soient
 # compilées.
-add_dependencies(pdcartes-tarot build-version)
+add_dependencies(pdcartes-tarot-core build-version)
 
 # Les fontes d'affichage du logo, dans le binaire.
 #
@@ -193,23 +204,24 @@ add_dependencies(pdcartes-tarot build-version)
 # `BASE assets` est ce qui fait que le chemin de la ressource est
 # `:/fonts/ZenDots/ZenDots-Regular.ttf` et non `:/fonts/assets/ZenDots/...` :
 # le dossier de chaque fonte est gardé, sa licence vivant à côté d'elle.
-qt_add_resources(pdcartes-tarot "titre"
+function(pdcartes_tarot_embed_resources target)
+qt_add_resources(${target} "titre"
     PREFIX "/fonts"
-    BASE assets
+    BASE "${CMAKE_SOURCE_DIR}/assets"
     FILES
-        assets/ZenDots/ZenDots-Regular.ttf
-        assets/ZenTokyoZoo/ZenTokyoZoo-Regular.ttf
+        ${CMAKE_SOURCE_DIR}/assets/ZenDots/ZenDots-Regular.ttf
+        ${CMAKE_SOURCE_DIR}/assets/ZenTokyoZoo/ZenTokyoZoo-Regular.ttf
         # Deux des neuf graisses livrées : la fonte de toute la fenêtre veut
         # son normal et son gras, et rien de plus. Chacune pèse presque deux
         # mégaoctets -- une fonte japonaise porte ses milliers d'idéogrammes,
         # qu'on les écrive ou non.
         #
-        # Zen Kaku Gothic New reste dans `assets/` sans être embarquée : elle
+        # Zen Kaku Gothic New reste dans `${CMAKE_SOURCE_DIR}/assets/` sans être embarquée : elle
         # a tenu ce rôle un moment, y revenir est deux lignes, et une fonte
         # compilée dans le binaire que rien ne demande est quatre mégaoctets
         # que tout le monde télécharge.
-        assets/M_PLUS_2/static/MPLUS2-Regular.ttf
-        assets/M_PLUS_2/static/MPLUS2-Bold.ttf)
+        ${CMAKE_SOURCE_DIR}/assets/M_PLUS_2/static/MPLUS2-Regular.ttf
+        ${CMAKE_SOURCE_DIR}/assets/M_PLUS_2/static/MPLUS2-Bold.ttf)
 
 # Les icônes des boutons, dans le binaire elles aussi.
 #
@@ -217,28 +229,28 @@ qt_add_resources(pdcartes-tarot "titre"
 # sur la machine de quelqu'un ; Windows n'en a pas, et les boutons y étaient
 # nus. Celles-ci sont le second recours -- voir `appIcon()` dans MenuStyle.
 #
-# Elles viennent du thème Adwaita de GNOME : voir assets/icons/PROVENANCE.txt,
+# Elles viennent du thème Adwaita de GNOME : voir ${CMAKE_SOURCE_DIR}/assets/icons/PROVENANCE.txt,
 # dont la licence et les auteurs s'installent à côté du jeu.
-qt_add_resources(pdcartes-tarot "icones"
+qt_add_resources(${target} "icones"
     PREFIX "/icons"
-    BASE assets/icons
+    BASE "${CMAKE_SOURCE_DIR}/assets"/icons
     FILES
-        assets/icons/display-brightness-symbolic.svg
-        assets/icons/document-edit-symbolic.svg
-        assets/icons/document-open-symbolic.svg
-        assets/icons/edit-undo-symbolic.svg
-        assets/icons/folder-open-symbolic.svg
-        assets/icons/folder-symbolic.svg
-        assets/icons/go-home-symbolic.svg
-        assets/icons/go-previous-symbolic.svg
-        assets/icons/help-about-symbolic.svg
-        assets/icons/help-contents-symbolic.svg
-        assets/icons/night-light-symbolic.svg
-        assets/icons/preferences-system-symbolic.svg
-        assets/icons/user-home-symbolic.svg
-        assets/icons/view-refresh-symbolic.svg
-        assets/icons/weather-clear-night-symbolic.svg
-        assets/icons/weather-clear-symbolic.svg)
+        ${CMAKE_SOURCE_DIR}/assets/icons/display-brightness-symbolic.svg
+        ${CMAKE_SOURCE_DIR}/assets/icons/document-edit-symbolic.svg
+        ${CMAKE_SOURCE_DIR}/assets/icons/document-open-symbolic.svg
+        ${CMAKE_SOURCE_DIR}/assets/icons/edit-undo-symbolic.svg
+        ${CMAKE_SOURCE_DIR}/assets/icons/folder-open-symbolic.svg
+        ${CMAKE_SOURCE_DIR}/assets/icons/folder-symbolic.svg
+        ${CMAKE_SOURCE_DIR}/assets/icons/go-home-symbolic.svg
+        ${CMAKE_SOURCE_DIR}/assets/icons/go-previous-symbolic.svg
+        ${CMAKE_SOURCE_DIR}/assets/icons/help-about-symbolic.svg
+        ${CMAKE_SOURCE_DIR}/assets/icons/help-contents-symbolic.svg
+        ${CMAKE_SOURCE_DIR}/assets/icons/night-light-symbolic.svg
+        ${CMAKE_SOURCE_DIR}/assets/icons/preferences-system-symbolic.svg
+        ${CMAKE_SOURCE_DIR}/assets/icons/user-home-symbolic.svg
+        ${CMAKE_SOURCE_DIR}/assets/icons/view-refresh-symbolic.svg
+        ${CMAKE_SOURCE_DIR}/assets/icons/weather-clear-night-symbolic.svg
+        ${CMAKE_SOURCE_DIR}/assets/icons/weather-clear-symbolic.svg)
 
 # Icône de l'application, également incluse dans le binaire.
 #
@@ -254,22 +266,20 @@ qt_add_resources(pdcartes-tarot "icones"
 #
 # Le dessin, les PNG et le fichier ICO sont produits par `tools/make-icon.py`
 # et versionnés : la compilation ne requiert pas Inkscape.
-qt_add_resources(pdcartes-tarot "icone-du-jeu"
+qt_add_resources(${target} "icone-du-jeu"
     PREFIX "/app"
-    BASE assets/icon
+    BASE "${CMAKE_SOURCE_DIR}/assets"/icon
     FILES
-        assets/icon/pdcartes-tarot-16.png
-        assets/icon/pdcartes-tarot-24.png
-        assets/icon/pdcartes-tarot-32.png
-        assets/icon/pdcartes-tarot-48.png
-        assets/icon/pdcartes-tarot-64.png
-        assets/icon/pdcartes-tarot-128.png
-        assets/icon/pdcartes-tarot-256.png)
+        ${CMAKE_SOURCE_DIR}/assets/icon/pdcartes-tarot-16.png
+        ${CMAKE_SOURCE_DIR}/assets/icon/pdcartes-tarot-24.png
+        ${CMAKE_SOURCE_DIR}/assets/icon/pdcartes-tarot-32.png
+        ${CMAKE_SOURCE_DIR}/assets/icon/pdcartes-tarot-48.png
+        ${CMAKE_SOURCE_DIR}/assets/icon/pdcartes-tarot-64.png
+        ${CMAKE_SOURCE_DIR}/assets/icon/pdcartes-tarot-128.png
+        ${CMAKE_SOURCE_DIR}/assets/icon/pdcartes-tarot-256.png)
+endfunction()
 
-# Nécessaire pour trouver `Links.h`, généré ci-dessus dans ce répertoire.
-target_include_directories(pdcartes-tarot PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-
-target_link_libraries(pdcartes-tarot PRIVATE cartotheque Qt6::Widgets)
+pdcartes_tarot_embed_resources(pdcartes-tarot)
 
 # Sur Windows, un programme à fenêtres et non un programme de console : sans
 # cela une console noire s'ouvre derrière le tapis et reste là.
@@ -602,3 +612,8 @@ add_custom_target(release
     COMMENT "Les deux paquets de la version ${PDCARTES_TAROT_VERSION}")
 
 endif()
+
+# Les suites de tests, hors écran, lancées par `ctest` : chaque exécutable de
+# test se lie à la bibliothèque d'objets du cœur (voir tests/).
+enable_testing()
+add_subdirectory(tests)

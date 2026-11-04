@@ -298,6 +298,13 @@ cmake -S . -B build -DQT_WIN_PREFIX=/chemin/vers/qt6/6.8.2/mingw_64
 cmake --build build --target release
 ```
 
+Les tests se construisent avec le reste et se lancent hors écran :
+
+```sh
+cmake --build build
+ctest --test-dir build --output-on-failure
+```
+
 ## Le code
 
 Les règles ne savent pas qu'il y a un écran, et le dessin ne sait pas qu'il y a
@@ -309,8 +316,8 @@ autres.
 | `src/Cards.cpp` | ce qu'est une carte, et ce qu'elle vaut — en demi-points, comptés en entiers |
 | `src/Poignee.cpp` | les atouts qu'une main montre avant de les jouer |
 | `src/Tarot.cpp` | la donne : la distribution, le chien, l'enchère, l'écart, les dix-huit plis et la marque |
-| `src/Brain.cpp` | comment un joueur décide, et ce qu'un niveau change exactement |
-| `src/Rivals.cpp` | les six, leur expérience et les trois niveaux |
+| `src/Brain.cpp` | comment un joueur décide, rang par rang de ses acquises |
+| `src/Rivals.cpp` | les six, leur tempérament, leurs acquises et leurs niveaux |
 | `src/Profiles.cpp` | les trois profils, et où tout cela est gardé |
 | `src/Tables.cpp` | les cinq tables, et la longueur d'une partie |
 | `src/TableLook.cpp` | la couleur du drap, le jeu et le dos — ce que le profil en cours veut |
@@ -324,6 +331,7 @@ autres.
 | `src/ProfileChip.cpp` | la plaque du profil, dans la bande du haut |
 | `src/HelpDialog.cpp` | les règles, en entier, dans la fenêtre |
 | `src/MainWindow.cpp` | la fenêtre : la barre du haut et les deux pages |
+| `tests/` | les suites de tests hors écran (`ctest` dans le dossier de build) : règles à 3/4/5 joueurs, appel du roi et appel caché, pastilles, cérébros, tempérament et acquises des six, pilote UI |
 
 Le format des jeux de cartes, le dessin d'une carte, la palette et l'habillage
 des boîtes de dialogue vivent dans la cartothèque, partagée avec
