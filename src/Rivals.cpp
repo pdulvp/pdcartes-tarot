@@ -132,44 +132,105 @@ Pools poolsFromXp(int xp, const Innates &innates) {
     return pools;
 }
 
-QString innateName(Innate which) {
-    switch (which) {
-    case Innate::Audace: return QCoreApplication::translate("rivals", "Audace");
-    case Innate::Prudence: return QCoreApplication::translate("rivals", "Prudence");
-    case Innate::Vigilance: return QCoreApplication::translate("rivals", "Vigilance");
-    case Innate::Calme: return QCoreApplication::translate("rivals", "Calme");
-    }
-    return QString();
-}
-
-QString innateLevelName(Innate which, int level) {
-    static const char *kNames[kInnateCount][kInnateTop + 1] = {
-        {QT_TRANSLATE_NOOP("rivals", "timide"), QT_TRANSLATE_NOOP("rivals", "mesuré"),
-         QT_TRANSLATE_NOOP("rivals", "hardi"), QT_TRANSLATE_NOOP("rivals", "casse-cou")},
-        {QT_TRANSLATE_NOOP("rivals", "insouciant"), QT_TRANSLATE_NOOP("rivals", "ordinaire"),
-         QT_TRANSLATE_NOOP("rivals", "regardant"), QT_TRANSLATE_NOOP("rivals", "économe")},
-        {QT_TRANSLATE_NOOP("rivals", "distrait"), QT_TRANSLATE_NOOP("rivals", "ordinaire"),
-         QT_TRANSLATE_NOOP("rivals", "attentif"), QT_TRANSLATE_NOOP("rivals", "aux aguets")},
-        {QT_TRANSLATE_NOOP("rivals", "soupe au lait"), QT_TRANSLATE_NOOP("rivals", "ordinaire"),
-         QT_TRANSLATE_NOOP("rivals", "posé"), QT_TRANSLATE_NOOP("rivals", "imperturbable")},
+const QVector<InnateSpec> &innateSpecs() {
+    static const QVector<InnateSpec> list = {
+        {QCoreApplication::translate("rivals", "Audace"), 14,
+         {QCoreApplication::translate("rivals", "timide"),
+          QCoreApplication::translate("rivals", "mesuré"),
+          QCoreApplication::translate("rivals", "hardi"),
+          QCoreApplication::translate("rivals", "casse-cou")},
+         {QCoreApplication::translate("rivals", "laisse passer les mains moyennes"),
+          QCoreApplication::translate("rivals", "prend quand ça vaut le coup"),
+          QCoreApplication::translate("rivals", "prend tôt, et assume"),
+          QCoreApplication::translate("rivals", "prend presque tout, même risqué")}},
+        {QCoreApplication::translate("rivals", "Prudence"), 42,
+         {QCoreApplication::translate("rivals", "insouciant"),
+          QCoreApplication::translate("rivals", "ordinaire"),
+          QCoreApplication::translate("rivals", "regardant"),
+          QCoreApplication::translate("rivals", "économe")},
+         {QCoreApplication::translate("rivals", "se débarrasse de ce qui coûte"),
+          QCoreApplication::translate("rivals", "garde ce qui sert"),
+          QCoreApplication::translate("rivals", "garde ses bouts et son petit"),
+          QCoreApplication::translate("rivals", "ne lâche aucune carte utile")}},
+        {QCoreApplication::translate("rivals", "Vigilance"), 320,
+         {QCoreApplication::translate("rivals", "distrait"),
+          QCoreApplication::translate("rivals", "ordinaire"),
+          QCoreApplication::translate("rivals", "attentif"),
+          QCoreApplication::translate("rivals", "aux aguets")},
+         {QCoreApplication::translate("rivals", "ne regarde pas qui tient le pli"),
+          QCoreApplication::translate("rivals", "suit le jeu de temps en temps"),
+          QCoreApplication::translate("rivals", "sait qui tient le pli, et de quel camp"),
+          QCoreApplication::translate("rivals", "devine l'appelé caché à qui donne au preneur")}},
+        {QCoreApplication::translate("rivals", "Calme"), 92,
+         {QCoreApplication::translate("rivals", "soupe au lait"),
+          QCoreApplication::translate("rivals", "ordinaire"),
+          QCoreApplication::translate("rivals", "posé"),
+          QCoreApplication::translate("rivals", "imperturbable")},
+         {QCoreApplication::translate("rivals", "se trompe un coup sur trois"),
+          QCoreApplication::translate("rivals", "se trompe de temps en temps"),
+          QCoreApplication::translate("rivals", "ne se trompe presque plus"),
+          QCoreApplication::translate("rivals", "ne se trompe jamais")}},
     };
-    return QCoreApplication::translate("rivals", kNames[int(which)][qBound(0, level, kInnateTop)]);
+    return list;
 }
 
-QString learnedName(Learned which) {
-    switch (which) {
-    case Learned::Lecture: return QCoreApplication::translate("rivals", "Lecture");
-    case Learned::Memoire: return QCoreApplication::translate("rivals", "Mémoire");
-    case Learned::Defausse: return QCoreApplication::translate("rivals", "Défausse");
-    case Learned::Maitrise: return QCoreApplication::translate("rivals", "Maîtrise");
+const QVector<LearnedSpec> &learnedSpecs() {
+    static const QVector<LearnedSpec> list = {
+        {QCoreApplication::translate("rivals", "Lecture"), 206,
+         {QCoreApplication::translate("rivals", "ne compte que ses atouts"),
+          QCoreApplication::translate("rivals", "pèse bouts et atouts"),
+          QCoreApplication::translate("rivals", "pèse toute la main"),
+          QCoreApplication::translate("rivals", "pèse juste, à une carte près")},
+         {QCoreApplication::translate("rivals", "prend sur n'importe quelle main"),
+          QCoreApplication::translate("rivals", "prend sur ce qu'il a compté"),
+          QCoreApplication::translate("rivals", "prend ce qui tient vraiment"),
+          QCoreApplication::translate("rivals", "ne prend que ce qui gagne")}},
+        {QCoreApplication::translate("rivals", "Mémoire"), 268,
+         {QCoreApplication::translate("rivals", "oublie tout ce qui est joué"),
+          QCoreApplication::translate("rivals", "se souvient du dernier pli"),
+          QCoreApplication::translate("rivals", "sait qui tient le pli"),
+          QCoreApplication::translate("rivals", "sait ce qui reste dehors")},
+         {QCoreApplication::translate("rivals", "joue sans regarder le tapis"),
+          QCoreApplication::translate("rivals", "suit le pli de temps en temps"),
+          QCoreApplication::translate("rivals", "charge le pli de son camp"),
+          QCoreApplication::translate("rivals", "compte les soixante-dix-huit cartes")}},
+        {QCoreApplication::translate("rivals", "Défausse"), 174,
+         {QCoreApplication::translate("rivals", "jette les moins chères"),
+          QCoreApplication::translate("rivals", "garde les bouts"),
+          QCoreApplication::translate("rivals", "vide une couleur entière"),
+          QCoreApplication::translate("rivals", "se fait la coupe qu'il faut")},
+         {QCoreApplication::translate("rivals", "reste long partout, sans coupe"),
+          QCoreApplication::translate("rivals", "garde ce qui peut prendre"),
+          QCoreApplication::translate("rivals", "se fait une coupe sûre"),
+          QCoreApplication::translate("rivals", "coupe exactement où il faudra")}},
+        {QCoreApplication::translate("rivals", "Maîtrise"), 146,
+         {QCoreApplication::translate("rivals", "bourde un coup sur trois"),
+          QCoreApplication::translate("rivals", "bourde rarement"),
+          QCoreApplication::translate("rivals", "protège son petit"),
+          QCoreApplication::translate("rivals", "ne se trompe plus")},
+         {QCoreApplication::translate("rivals", "joue la mauvaise carte souvent"),
+          QCoreApplication::translate("rivals", "garde la tête froide"),
+          QCoreApplication::translate("rivals", "pose son petit sur un pli acquis"),
+          QCoreApplication::translate("rivals", "joue chaque carte au mieux")}},
+    };
+    return list;
+}
+
+const InnateSpec &innateSpec(Innate which) {
+    return innateSpecs().at(qBound(0, int(which), kInnateCount - 1));
+}
+
+const LearnedSpec &learnedSpec(Learned which) {
+    return learnedSpecs().at(qBound(0, int(which), kLearnedCount - 1));
+}
+
+QString rungRoman(int rung) {
+    switch (qBound(0, rung, kRungCount - 1)) {
+    case 0: return QStringLiteral("I");
+    case 1: return QStringLiteral("II");
+    case 2: return QStringLiteral("III");
+    default: return QStringLiteral("IV");
     }
-    return QString();
-}
-
-QString rungName(Learned which, int rung) {
-    static const char *kRoman[kRungCount] = {"I", "II", "III", "IV"};
-    return QStringLiteral("%1 %2")
-        .arg(learnedName(which), QLatin1String(kRoman[qBound(0, rung, kRungCount - 1)]));
 }
 
 QString temperamentLine(const Innates &innates) {
@@ -178,8 +239,9 @@ QString temperamentLine(const Innates &innates) {
     for (int i = 1; i < kInnateCount; ++i) {
         if (innates.level[i] > innates.level[dominant]) dominant = i;
     }
+    const Innate which = Innate(dominant);
     return QCoreApplication::translate("rivals", "Plutôt %1")
-        .arg(innateLevelName(Innate(dominant), innates.level[dominant]).toLower());
+        .arg(innateSpec(which).levels[innates.level[dominant]].toLower());
 }
 
 

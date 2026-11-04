@@ -166,6 +166,10 @@ add_library(pdcartes-tarot-core OBJECT
     # demandent l'une et l'autre au survol.
     src/RivalGlance.cpp
     src/RivalGlance.h
+    # Une ligne de compétence dans l'aperçu d'un adversaire, à la manière de
+    # cardsol.
+    src/SkillRow.cpp
+    src/SkillRow.h
     src/TablePicker.cpp
     src/TablePicker.h
     src/SettingsDialog.cpp

@@ -103,12 +103,28 @@ qreal learnRate(const Innates &innates, Learned which);
 // tempérament : sert à migrer les profils écrits avant les pools.
 Pools poolsFromXp(int xp, const Innates &innates);
 
-// Libellés : nom de l'innée et de son niveau, nom de l'acquise et de son
-// rang, et la phrase « ce qu'il est » fondée sur l'innée dominante.
-QString innateName(Innate which);
-QString innateLevelName(Innate which, int level);
-QString learnedName(Learned which);
-QString rungName(Learned which, int rung);
+// Libellés affichés : description d'une innée (nom, teinte chaude, intitulés
+// de ses niveaux, effet en partie) et d'une acquise (nom, teinte froide,
+// intitulés de ses rangs, effet en partie), comme dans cardsol.
+struct InnateSpec {
+    QString name;
+    int hue;
+    QString levels[kInnateTop + 1];
+    QString says[kInnateTop + 1];
+};
+
+struct LearnedSpec {
+    QString name;
+    int hue;
+    QString rungs[kRungCount];
+    QString says[kRungCount];
+};
+
+const InnateSpec &innateSpec(Innate which);
+const LearnedSpec &learnedSpec(Learned which);
+// Rang en chiffres romains, de I à IV.
+QString rungRoman(int rung);
+// La phrase « ce qu'il est », fondée sur l'innée dominante.
 QString temperamentLine(const Innates &innates);
 
 struct Rival {

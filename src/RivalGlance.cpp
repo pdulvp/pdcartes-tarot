@@ -2,6 +2,7 @@
 
 #include "FeltArt.h"
 #include "Rivals.h"
+#include "SkillRow.h"
 
 #include "CardArt.h"
 #include "DialogChrome.h"
@@ -175,24 +176,28 @@ void RivalGlance::buildWhoHeIs(QVBoxLayout *column) {
 
     column->addWidget(dialogSectionHeading(this, tr("Ce qu'il est")));
     column->addSpacing(5);
-    // Sa petite phrase, qui est sa façon de jouer en une ligne, puis le niveau
-    // avec lequel il s'est assis. Les deux ne bougent jamais : c'est ce qui
-    // distingue cette colonne de l'autre.
+    // Sa petite phrase, qui est sa façon de jouer en une ligne.
     column->addWidget(glanceLine(this, who.blurb, false, kBlurbWide));
     column->addSpacing(4);
-    column->addWidget(
-        glanceLine(this, tr("Arrivé %1").arg(levelName(levelOf(who.startXp)).toLower()), true));
-    column->addSpacing(4);
-    // Son tempérament : quatre innées, quatre niveaux, qui ne bougent jamais
-    // et ne rendent personne meilleur — juste reconnaissable.
+    // Son tempérament : quatre innées, quatre niveaux, en pastilles colorées
+    // comme dans cardsol — chaudes ici, froides pour ce qu'il a appris.
     const Innates innates = innatesFor(m_rivalId);
     for (int i = 0; i < kInnateCount; ++i) {
         const Innate which = Innate(i);
-        column->addWidget(glanceLine(
-            this, tr("%1 : %2").arg(innateName(which),
-                                    innateLevelName(which, innates.at(which)).toLower()),
-            true, kBlurbWide));
+        const InnateSpec &spec = innateSpec(which);
+        const int level = innates.at(which);
+        auto *row = new SkillRow(this);
+        row->setCompact(true);
+        row->setTitle(spec.name);
+        row->setHue(spec.hue);
+        row->setLevel(level, kInnateTop + 1);
+        row->setWord(spec.levels[level]);
+        column->addWidget(row);
     }
+    column->addSpacing(4);
+    column->addWidget(glanceLine(this, temperamentLine(innates), true));
+    column->addWidget(
+        glanceLine(this, tr("Arrivé %1").arg(levelName(levelOf(who.startXp)).toLower()), true));
     column->addStretch(1);
 }
 
@@ -205,13 +210,19 @@ void RivalGlance::buildWhatHeLearned(QVBoxLayout *column) {
     column->addWidget(new GlanceLevelLine(learning.xp, mine, this));
     column->addWidget(glanceLine(this, levelName(levelOf(learning.xp)), false));
     column->addSpacing(4);
-    // Les quatre acquises et leur rang : c'est là que l'expérience se lit,
-    // compétence par compétence.
+    // Les quatre acquises et leur rang, en pastilles et chiffres romains.
     for (int i = 0; i < kLearnedCount; ++i) {
         const Learned which = Learned(i);
-        column->addWidget(glanceLine(
-            this, tr("%1 — rang %2").arg(learnedName(which)).arg(rungOf(learning.pools.at(which)) + 1),
-            true, kBlurbWide));
+        const LearnedSpec &spec = learnedSpec(which);
+        const int rung = rungOf(learning.pools.at(which));
+        auto *row = new SkillRow(this);
+        row->setCompact(true);
+        row->setTitle(spec.name);
+        row->setHue(spec.hue);
+        row->setLevel(rung, kRungCount);
+        row->setRank(rungRoman(rung));
+        row->setWord(spec.rungs[rung]);
+        column->addWidget(row);
     }
     column->addSpacing(4);
 

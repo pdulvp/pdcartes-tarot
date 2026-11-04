@@ -328,6 +328,7 @@ autres.
 | `src/VictoryEffect.cpp` | les cartes qui s'envolent et le feu d'artifice |
 | `src/TablePicker.cpp` | le menu d'ouverture : les tables, les six, et leur petit menu |
 | `src/RivalCard.cpp` | la carte d'un joueur, au menu d'ouverture |
+| `src/SkillRow.cpp` | une ligne de compétence (pastilles, rang) dans l'aperçu d'un adversaire, à la manière de cardsol |
 | `src/ProfileChip.cpp` | la plaque du profil, dans la bande du haut |
 | `src/HelpDialog.cpp` | les règles, en entier, dans la fenêtre |
 | `src/MainWindow.cpp` | la fenêtre : la barre du haut et les deux pages |
