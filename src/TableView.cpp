@@ -1033,12 +1033,15 @@ void TableView::paintBidding(QPainter *painter) {
                      : seat.said;
         QRectF chip(0, 0, saidMetrics.horizontalAdvance(shown) + 18.0,
                     saidMetrics.height() + 6.0);
-        switch (compassOf(at)) {
-        case 0: chip.moveCenter(middle + QPointF(0, above)); break;
-        case 1: chip.moveCenter(middle - QPointF(aside + chip.width() / 2.0 + 16.0, 0)); break;
-        case 2: chip.moveCenter(middle - QPointF(0, above)); break;
-        default: chip.moveCenter(middle + QPointF(aside + chip.width() / 2.0 + 16.0, 0)); break;
-        }
+        // La pastille de chaque parole est à la place de celui qui la dit,
+        // sur le même cercle que les places du pli : la croix à 4 joueurs,
+        // un cercle à 3 ou 5. Sans cela, à 5 joueurs deux pastilles se
+        // poseraient l'une sur l'autre et l'on ne verrait que trois joueurs.
+        const int seats = m_game->seatCount();
+        const int at_ = compassOf(at);
+        const qreal angle = kPi / 2.0 + at_ * 2.0 * kPi / seats;
+        chip.moveCenter(middle + QPointF((aside + chip.width() / 2.0 + 16.0) * std::cos(angle),
+                                         above * std::sin(angle)));
         painter->setPen(Qt::NoPen);
         painter->setBrush(speaking ? scheme.accent
                                    : blendColours(scheme.feltEdge, scheme.surface, 0.30));
