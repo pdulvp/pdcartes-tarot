@@ -248,8 +248,11 @@ au lancement suivant. Un <b>débutant</b> compte ses atouts et prend là-dessus,
 écarte ses six cartes les moins chères et joue sans regarder qui tient le pli ;
 un <b>intermédiaire</b> pèse sa main, écarte pour se faire une coupe et protège
 son petit ; un <b>expert</b> se souvient des soixante-dix-huit cartes, sait
-combien d'atouts restent dehors, tire l'atout quand il a pris, et chasse le
-petit de l'adversaire. L'expérience des six est comptée dans le <b>profil</b>
+combien d'atouts restent dehors, tire l'atout quand il a pris, chasse le
+petit de l'adversaire, et — à 5 joueurs quand l'appel est caché — devine le
+partenaire du preneur à qui donne des cartes aux plis de celui-ci. Ni eux ni
+vous ne connaissez l'appelé avant que la carte appelée soit jouée, sauf
+l'appelé lui-même qui la tient. L'expérience des six est comptée dans le <b>profil</b>
 sous lequel on joue et nulle part ailleurs.</p>
 
 <h2>Les cartes et le drap</h2>

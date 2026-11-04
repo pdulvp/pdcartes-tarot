@@ -34,6 +34,24 @@ QVector<Card> cardsOf(const QVector<Card> &hand, const QVector<int> &ids) {
     return found;
 }
 
+// Le camp de `seat` tel que `observer` a le droit de le connaître : à 5
+// joueurs avec l'appel caché, l'appelé n'est public que lorsqu'il est
+// révélé — seul l'appelé lui-même le sait avant. Un expert va plus loin et
+// retient sa devinette : le partenaire deviné d'après les cartes données au
+// preneur joue avec le preneur, tant que la carte appelée n'a pas parlé.
+int knownTeam(const Tarot &game, int seat, int observer, const Skill &skill) {
+    const int team = game.knownTeamOf(seat, observer);
+    // La devinette ne vaut que pour les autres : chacun connaît son propre
+    // camp à coup sûr (l'appelé tient la carte appelée, les autres savent
+    // qu'ils ne la tiennent pas).
+    if (seat != observer && skill.guessesPartner && team == kDefenceTeam &&
+        seat != game.taker() && game.callHidden() && !game.callRevealed() &&
+        seat == game.guessedCallee()) {
+        return kTakerTeam;
+    }
+    return team;
+}
+
 } // namespace
 
 // ---------------------------------------------------------------------------
@@ -68,6 +86,7 @@ Skill skillFor(int xp) {
         skill.weighsHand = true;
         skill.countsCards = true;
         skill.savesPetit = true;
+        skill.guessesPartner = true;
         // Un expert ne prend pas moins souvent qu'un autre : il prend mieux.
         // Sa barre est celle qui est juste, et c'est sa lecture de la main qui
         // est meilleure.
@@ -454,7 +473,7 @@ int chooseCard(const Tarot &game, int at, const Skill &skill) {
     const QVector<Card> &hand = game.seat(at).hand;
     const QVector<Card> playable = cardsOf(hand, legal);
     const Seen seen = cardsSeen(game);
-    const int myTeam = game.teamOf(at);
+    const int myTeam = knownTeam(game, at, at, skill);
     const bool last = game.trick().size() == game.seatCount() - 1;
     const bool lastTrick = game.trickNumber() >= game.trickCount();
 
@@ -553,7 +572,7 @@ int chooseCard(const Tarot &game, int at, const Skill &skill) {
     // ---- On suit.
 
     const int master = game.trickMaster();
-    const bool oursHolds = master >= 0 && game.teamOf(master) == myTeam;
+    const bool oursHolds = master >= 0 && knownTeam(game, master, at, skill) == myTeam;
     Card top;
     for (const Played &played : game.trick()) {
         if (played.seat == master) top = played.card;
@@ -718,7 +737,7 @@ QString advise(const Tarot &game, int at) {
         }
     } else {
         const int master = game.trickMaster();
-        const bool ours = master >= 0 && game.teamOf(master) == game.teamOf(at);
+        const bool ours = master >= 0 && knownTeam(game, master, at, skill) == knownTeam(game, at, at, skill);
         if (ours && cardPoints(*card) >= 5) {
             why = QCoreApplication::translate("brain", "le pli est à votre camp : chargez-le");
         } else if (beatsTrick(*card, game.trick().isEmpty() ? Card{} : game.trick().first().card,

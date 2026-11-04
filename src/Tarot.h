@@ -183,6 +183,17 @@ public:
         if (m_seats.size() == 5 && at == m_callee) return kTakerTeam;
         return kDefenceTeam;
     }
+    // Le camp de `at` tel que `observer` a le droit de le connaître : quand
+    // l'appel est caché et pas encore révélé, l'appelé n'est connu que de
+    // lui-même (il tient la carte appelée et le sait) ; pour tous les autres
+    // il compte défenseur, comme à l'enchère.
+    int knownTeamOf(int at, int observer) const {
+        if (m_seats.size() == 5 && at == m_callee && observer != m_callee &&
+            m_callHidden && !m_callRevealed) {
+            return kDefenceTeam;
+        }
+        return teamOf(at);
+    }
     static int otherTeam(int team) { return team ^ 1; }
 
     Phase phase() const { return m_phase; }
@@ -228,6 +239,12 @@ public:
     void setCallHidden(bool hidden) { m_callHidden = hidden; }
     bool callHidden() const { return m_callHidden; }
     bool callRevealed() const { return m_callRevealed; }
+    // La devinette : à 5 joueurs avec l'appel caché et pas encore révélé, le
+    // siège qui semble être le partenaire du preneur, d'après ce qui a été
+    // joué en public — chaque pli ramassé par le preneur alimente le soupçon
+    // de qui y a posé des points. Renvoie -1 tant qu'aucun soupçon, et
+    // m_callee dès que l'appel est public (ou hors appel).
+    int guessedCallee() const;
     Contract contract() const { return m_contract; }
     int multiplier() const { return contractMultiplier(m_contract); }
 

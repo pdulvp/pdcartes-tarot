@@ -514,6 +514,46 @@ bool Tarot::callKing(int at, Suit suit, QString *why) {
     return true;
 }
 
+int Tarot::guessedCallee() const {
+    if (m_seats.size() != 5 || m_callee < 0) return m_callee;
+    if (!m_callHidden || m_callRevealed) return m_callee;
+
+    // On rejoue l'histoire pli par pli, comme on la voit de la table : un
+    // pli que le preneur ramasse fait monter le soupçon de qui y a posé des
+    // points — « il donne des cartes au preneur », c'est le signe du
+    // partenaire tant que la carte appelée n'a pas parlé.
+    QVector<int> suspicion(m_seats.size(), 0);
+    const int chunk = m_seats.size();
+    for (int start = 0; start + chunk <= m_history.size(); start += chunk) {
+        Suit led = Suit::Pique;
+        for (int i = start; i < start + chunk; ++i) {
+            if (!m_history.at(i).card.excuse()) {
+                led = m_history.at(i).card.suit;
+                break;
+            }
+        }
+        int winner = -1;
+        Card top;
+        for (int i = start; i < start + chunk; ++i) {
+            const Played &played = m_history.at(i);
+            if (!beatsTrick(played.card, top, led)) continue;
+            top = played.card;
+            winner = played.seat;
+        }
+        if (winner != m_taker) continue;
+        for (int i = start; i < start + chunk; ++i) {
+            const Played &played = m_history.at(i);
+            if (played.seat != m_taker) suspicion[played.seat] += cardPoints(played.card);
+        }
+    }
+    int best = -1;
+    for (int at = 0; at < m_seats.size(); ++at) {
+        if (at == m_taker || suspicion[at] <= 0) continue;
+        if (best < 0 || suspicion[at] > suspicion[best]) best = at;
+    }
+    return best;
+}
+
 void Tarot::annulDonne() {
     // Les quatre ont passé : la donne ne se joue pas, et c'est au suivant de
     // donner. Ça arrive, et ce n'est pas un échec du programme -- c'est une

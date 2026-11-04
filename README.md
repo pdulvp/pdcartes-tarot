@@ -162,7 +162,9 @@ le détenteur de la carte appelée devient son partenaire (l'« appelé ») pour
 donne, sa plaque portant « avec vous » quand c'est vous qui prenez — et une
 case des réglages permet de **cacher l'appelé** : personne ne sait alors qui
 est le partenaire du preneur tant que la carte appelée n'est pas jouée, et
-c'est elle, posée sur un pli, qui révèle le camp ; si la
+c'est elle, posée sur un pli, qui révèle le camp (les adversaires ne le
+savent pas non plus — seul l'appelé se reconnaît, et les experts le devinent
+à qui donne des cartes au preneur) ; si la
 carte appelée est au chien ou chez le preneur, il joue seul contre 4. À
 l'écart on ne met ni la carte appelée ni sa couleur, et à la première entame
 cette couleur est interdite sauf la carte appelée elle-même. La marque se
@@ -198,7 +200,7 @@ est une liste de choses qu'un joueur fait ou ne fait pas.
 |---|---|---|
 | Débutant | 0 – 199 | compte ses atouts et ses bouts et prend là-dessus, sans voir que quatre rois valent plus que six atouts moyens ; écarte ses six cartes les moins chères, une par couleur, et se retrouve long partout et sans coupe ; joue sa carte sans regarder qui tient le pli ; et se trompe franchement une fois sur trois ou quatre coups |
 | Intermédiaire | 200 – 599 | pèse sa main avant de prendre — les bouts, la longueur d'atout, les hauts atouts, les rois, les couleurs courtes ; vide une enseigne à l'écart pour pouvoir y couper ; protège son petit et le pose sur un pli déjà acquis plutôt que de le garder jusqu'au dernier, où il se perd ; charge le pli quand il est à son camp |
-| Expert | 600 – 1200 | se souvient des soixante-dix-huit cartes, sait donc combien d'atouts restent dehors et laquelle de ses cartes est devenue maîtresse ; tire l'atout quand il a pris, et se bat pour la main tant qu'il lui en reste à tirer ; laisse filer un pli qui ne vaut rien plutôt que d'y dépenser une maîtresse ; et ne fait plus de bourde |
+| Expert | 600 – 1200 | se souvient des soixante-dix-huit cartes, sait donc combien d'atouts restent dehors et laquelle de ses cartes est devenue maîtresse ; tire l'atout quand il a pris, et se bat pour la main tant qu'il lui en reste à tirer ; laisse filer un pli qui ne vaut rien plutôt que d'y dépenser une maîtresse ; devine l'appelé caché à qui donne des cartes au preneur ; et ne fait plus de bourde |
 
 **L'enchère est réglée sur ce qu'une main rapporte et non sur sa fréquence.** Le
 gain moyen du preneur a été mesuré sur quelques milliers de donnes, main par

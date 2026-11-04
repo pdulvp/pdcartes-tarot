@@ -1038,7 +1038,9 @@ void TablePage::sayWhatToDo() {
     }
     const Suit led = m_game->ledSuit();
     const int master = m_game->trickMaster();
-    const bool oursHolds = master >= 0 && m_game->teamOf(master) == m_game->teamOf(me);
+    // Connaissance publique seulement : avec l'appel caché, le partenaire du
+    // preneur n'est pas dit, et le message ne le dira pas non plus.
+    const bool oursHolds = master >= 0 && m_game->knownTeamOf(master, me) == m_game->knownTeamOf(me, me);
     if (oursHolds) {
         m_view->say(tr("%1 demandé. Le pli est à votre camp : chargez-le si vous pouvez.")
                         .arg(suitName(led)));

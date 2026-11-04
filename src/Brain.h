@@ -42,6 +42,13 @@
 //                       qu'ils voient sur la table, ce qui n'est pas la même
 //                       chose du tout.
 //
+//   deviner l'appelé    À 5 joueurs quand l'appel est caché, un expert ne
+//                       connaît pas le partenaire du preneur — personne ne le
+//                       connaît, sauf l'appelé lui-même — mais il le devine :
+//                       qui donne des cartes aux plis du preneur est suspect.
+//                       Les autres jouent contre le preneur et contre tout le
+//                       monde, partenaire caché compris.
+//
 //   le petit            Le petit vaut quatre points et demi et se perd au
 //                       premier atout demandé si on ne le garde pas. Un joueur
 //                       qui sait cela ne le joue jamais sans y être forcé, le
@@ -57,6 +64,7 @@ struct Skill {
     qreal blunder = 0.0;         // la mauvaise carte, exprès
     bool readsTable = false;     // sait qui tient le pli, et de quel camp
     bool countsCards = false;    // se souvient de tout ce qui est passé
+    bool guessesPartner = false; // devine l'appelé caché d'après les cartes données
     bool weighsHand = false;     // pèse la main avant de prendre, et écarte pour couper
     bool savesPetit = false;     // protège son petit et le mène au bout
     qreal boldness = 1.0;        // avec quelle facilité il prend
