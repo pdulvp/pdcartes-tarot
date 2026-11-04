@@ -759,13 +759,23 @@ void SettingsDialog::fillDecks() {
 
     QSignalBlocker quiet(m_deck);
     m_deck->clear();
-    // Seuls les tarots : il faut quatorze rangs dans quatre enseignes, les
+    // Le jeu dessiné d'abord : il reste proposé même quand des tarots sont
+    // installés, et c'est lui que vaut le choix tant qu'aucun jeu de fichier
+    // n'est désigné -- sans sa ligne, ce choix n'aurait aucune entrée à
+    // montrer et la liste serait incapable de rien choisir.
+    for (const DeckEntry &entry : decks.entries()) {
+        if (!entry.builtIn) continue;
+        m_deck->addItem(entry.name, entry.id);
+        if (entry.id == chosen) m_deck->setCurrentIndex(m_deck->count() - 1);
+    }
+    // Ensuite les tarots : il faut quatorze rangs dans quatre enseignes, les
     // vingt et un atouts et l'excuse. Un jeu de 52 n'a ni cavaliers ni atouts,
     // un jeu de 32 encore moins, et ni l'un ni l'autre ne gagnerait à être
     // proposé puis refusé.
     for (const DeckEntry &entry : decks.entriesOfKind(DeckKind::Tarot)) {
+        if (entry.builtIn) continue;
         QString label = entry.name;
-        if (!entry.builtIn && !entry.complete) {
+        if (!entry.complete) {
             label += tr(" — %1 cartes sur %2").arg(entry.faces).arg(entry.slotCount);
         }
         m_deck->addItem(label, entry.id);

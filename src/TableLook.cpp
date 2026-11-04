@@ -44,6 +44,17 @@ QString wantedBackDeck() {
     return kept.isEmpty() ? CardDecks::instance().chosenId() : kept;
 }
 
+// Le jeu que vaut un profil qui n'a encore rien choisi : le premier tarot
+// installé, puisqu'un jeu déposé dans le dossier des cartes est là pour être
+// joué, et à défaut le jeu dessiné.
+QString defaultDeckId() {
+    const QVector<DeckEntry> tarots = CardDecks::instance().entriesOfKind(DeckKind::Tarot);
+    for (const DeckEntry &entry : tarots) {
+        if (!entry.builtIn) return entry.id;
+    }
+    return CardDecks::builtInId();
+}
+
 } // namespace
 
 const QVector<FeltColour> &feltColours() {
@@ -80,10 +91,10 @@ void applyProfileLook() {
     const int slot = currentProfile();
     QSettings settings;
 
-    // Rien d'écrit pour ce profil : on lui laisse le jeu dessiné plutôt que
-    // celui du profil d'avant, qui n'est pas le sien.
-    const QString deck =
-        settings.value(deckKey(slot), CardDecks::builtInId()).toString();
+    // Rien d'écrit pour ce profil : on lui laisse le premier tarot installé,
+    // ou le jeu dessiné à défaut, plutôt que celui du profil d'avant, qui
+    // n'est pas le sien.
+    const QString deck = settings.value(deckKey(slot), defaultDeckId()).toString();
     CardDecks::instance().choose(deck);
     // Le dos du profil d'avant est encore chargé : il faudra le relire, que ce
     // profil-ci en nomme un autre ou qu'il suive ses faces.
