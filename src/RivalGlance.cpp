@@ -182,6 +182,17 @@ void RivalGlance::buildWhoHeIs(QVBoxLayout *column) {
     column->addSpacing(4);
     column->addWidget(
         glanceLine(this, tr("Arrivé %1").arg(levelName(levelOf(who.startXp)).toLower()), true));
+    column->addSpacing(4);
+    // Son tempérament : quatre innées, quatre niveaux, qui ne bougent jamais
+    // et ne rendent personne meilleur — juste reconnaissable.
+    const Innates innates = innatesFor(m_rivalId);
+    for (int i = 0; i < kInnateCount; ++i) {
+        const Innate which = Innate(i);
+        column->addWidget(glanceLine(
+            this, tr("%1 : %2").arg(innateName(which),
+                                    innateLevelName(which, innates.at(which)).toLower()),
+            true, kBlurbWide));
+    }
     column->addStretch(1);
 }
 
@@ -193,6 +204,15 @@ void RivalGlance::buildWhatHeLearned(QVBoxLayout *column) {
     column->addSpacing(5);
     column->addWidget(new GlanceLevelLine(learning.xp, mine, this));
     column->addWidget(glanceLine(this, levelName(levelOf(learning.xp)), false));
+    column->addSpacing(4);
+    // Les quatre acquises et leur rang : c'est là que l'expérience se lit,
+    // compétence par compétence.
+    for (int i = 0; i < kLearnedCount; ++i) {
+        const Learned which = Learned(i);
+        column->addWidget(glanceLine(
+            this, tr("%1 — rang %2").arg(learnedName(which)).arg(rungOf(learning.pools.at(which)) + 1),
+            true, kBlurbWide));
+    }
     column->addSpacing(4);
 
     if (learning.donnesPlayed == 0) {

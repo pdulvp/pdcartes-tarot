@@ -285,8 +285,9 @@ void TablePage::startMatch(const GameSettings &settings) {
     const QVector<SeatSpec> seats = chooseSeats();
     m_skills.clear();
     for (const SeatSpec &spec : seats) {
-        m_skills.append(spec.rivalId.isEmpty() ? bestSkill()
-                                               : skillFor(learningFor(spec.rivalId).xp));
+        m_skills.append(spec.rivalId.isEmpty()
+                            ? bestSkill()
+                            : skillFor(learningFor(spec.rivalId), innatesFor(spec.rivalId)));
     }
 
     // La vue regarde la partie avant que la première donne soit distribuée :
@@ -631,7 +632,7 @@ void TablePage::onDonneFinished() {
         for (int at = 0; at < m_game->seatCount() && at < m_skills.size(); ++at) {
             const Seat &seat = m_game->seat(at);
             if (seat.human()) continue;
-            m_skills[at] = skillFor(learningFor(seat.rivalId).xp);
+            m_skills[at] = skillFor(learningFor(seat.rivalId), innatesFor(seat.rivalId));
         }
     }
 

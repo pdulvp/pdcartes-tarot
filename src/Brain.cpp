@@ -57,46 +57,50 @@ int knownTeam(const Tarot &game, int seat, int observer, const Skill &skill) {
 // ---------------------------------------------------------------------------
 // Les trois niveaux.
 
-Skill skillFor(int xp) {
+Skill skillFor(const Learning &learning, const Innates &innates) {
     Skill skill;
-    skill.mastery = masteryOf(xp);
-    const qreal within = progressWithin(xp);
+    skill.mastery = masteryOf(learning.xp);
 
-    switch (levelOf(xp)) {
-    case Level::Debutant:
-        // Un coup sur trois en arrivant, un coup sur huit en sortant du
-        // niveau : c'est à peu près la seule chose qui s'arrange chez lui, et
-        // elle suffit pour qu'on sente la différence entre un Lulu neuf et un
-        // Lulu de vingt donnes.
-        skill.blunder = 0.30 - 0.17 * within;
-        // Et il prend trop : la main lui paraît bonne parce qu'il y a des
-        // atouts dedans.
-        skill.boldness = 1.20 - 0.10 * within;
-        break;
-    case Level::Intermediaire:
-        skill.blunder = 0.11 - 0.075 * within;
-        skill.readsTable = true;
-        skill.weighsHand = true;
-        skill.savesPetit = true;
-        skill.boldness = 1.05 - 0.05 * within;
-        break;
-    case Level::Expert:
-        skill.blunder = 0.0;
-        skill.readsTable = true;
-        skill.weighsHand = true;
-        skill.countsCards = true;
-        skill.savesPetit = true;
-        skill.guessesPartner = true;
-        // Un expert ne prend pas moins souvent qu'un autre : il prend mieux.
-        // Sa barre est celle qui est juste, et c'est sa lecture de la main qui
-        // est meilleure.
-        skill.boldness = 1.0;
-        break;
-    }
+    // Savoir-faire acquis, compétence par compétence : chaque capacité est un
+    // rang d'une seule acquise. Les rangs déterminent la force.
+    const int lecture = rungOf(learning.pools.at(Learned::Lecture));
+    const int memoire = rungOf(learning.pools.at(Learned::Memoire));
+    const int defausse = rungOf(learning.pools.at(Learned::Defausse));
+    const int maitrise = rungOf(learning.pools.at(Learned::Maitrise));
+
+    skill.weighsHand = lecture >= 1;
+    skill.readsTable = memoire >= 1;
+    skill.countsCards = memoire >= 2;
+    // La devinette de l'appelé caché vient de la mémoire — ou d'une vigilance
+    // assez haute pour remarquer seul qui donne des cartes au preneur.
+    skill.guessesPartner = memoire >= 2 || innates.at(Innate::Vigilance) >= 2;
+    skill.cutsSuit = defausse >= 1;
+    skill.savesPetit = maitrise >= 1;
+    skill.vigilance = innates.at(Innate::Vigilance);
+    skill.prudence = innates.at(Innate::Prudence);
+
+    // La bourde suit la maîtrise rang par rang, et le calme la module : un
+    // coup sur trois chez le débutant, aucun chez l'expert imperturbable.
+    static const qreal kBlunder[kRungCount] = {0.30, 0.11, 0.035, 0.0};
+    static constexpr qreal kBlunderTilt[kInnateTop + 1] = {1.35, 1.00, 0.80, 0.60};
+    skill.blunder =
+        qBound(0.0, kBlunder[maitrise] * kBlunderTilt[innates.at(Innate::Calme)], 0.30);
+
+    // Traits de tempérament : ils ne rendent ni meilleur ni moins bon, mais
+    // reconnaissable. L'audace fixe directement la hardiesse d'enchère — un
+    // casse-cou parle sur des mains que le timide laisse passer — sans jamais
+    // débloquer un rang d'aucune acquise.
+    static constexpr qreal kBoldness[kInnateTop + 1] = {0.82, 0.94, 1.06, 1.18};
+    skill.boldness = kBoldness[innates.at(Innate::Audace)];
     return skill;
 }
 
-Skill bestSkill() { return skillFor(kMaxExperience); }
+Skill bestSkill() {
+    Learning maxed;
+    maxed.xp = kMaxExperience;
+    for (int i = 0; i < kLearnedCount; ++i) maxed.pools.xp[i] = kPoolCeiling;
+    return skillFor(maxed, Innates{});   // tempérament neutre
+}
 
 // ---------------------------------------------------------------------------
 // Peser une main.
@@ -240,7 +244,7 @@ QVector<int> chooseEcart(const Tarot &game, int at, const Skill &skill) {
     }
 
     QVector<int> chosen;
-    if (!skill.weighsHand) {
+    if (!skill.cutsSuit) {
         // Un débutant jette ses six cartes les moins chères, prises où elles
         // tombent. Il reste long partout, et sans une seule coupe.
         std::sort(free.begin(), free.end(), [](const Card &a, const Card &b) {
@@ -352,7 +356,9 @@ PoigneeKind choosePoignee(const Tarot &game, int at, const Skill &skill) {
     // Le preneur la montre toujours : une main qui porte dix atouts est une
     // main qui gagne la donne, et la poignée ira donc de son côté.
     if (at == game.taker()) return kind;
-    if (!skill.readsTable) return kind;      // un débutant la montre pour le plaisir
+    // Un débutant la montre pour le plaisir — sauf s'il est prudent, auquel
+    // cas il la garde pour son camp.
+    if (!skill.readsTable) return skill.prudence >= 2 ? PoigneeKind::Aucune : kind;
     // Un défenseur la donne au preneur s'il se trompe : il ne la montre donc
     // que lorsqu'il tient de quoi faire chuter, c'est-à-dire beaucoup d'atout.
     return kind == PoigneeKind::Simple ? PoigneeKind::Aucune : kind;

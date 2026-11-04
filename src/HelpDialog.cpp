@@ -252,7 +252,10 @@ combien d'atouts restent dehors, tire l'atout quand il a pris, chasse le
 petit de l'adversaire, et — à 5 joueurs — devine l'appelé caché, à qui donne
 des cartes aux plis du preneur. Ni eux ni vous ne connaissez l'appelé avant
 que la carte appelée soit jouée, sauf l'appelé lui-même qui la tient.
-L'expérience des six est comptée dans le <b>profil</b>
+Chacun a aussi un <b>tempérament</b> — audace, prudence, vigilance, calme —
+qui ne le rend ni meilleur ni moins bon, mais reconnaissable, et ce qu'il a
+appris se lit acquise par acquise — lecture, mémoire, défausse, maîtrise —
+dans l'aperçu de sa carte. L'expérience des six est comptée dans le <b>profil</b>
 sous lequel on joue et nulle part ailleurs.</p>
 
 <h2>Les cartes et le drap</h2>

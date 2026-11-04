@@ -58,19 +58,32 @@
 //   la bourde           Et par-dessus tout cela, un débutant joue franchement
 //                       la mauvaise carte de temps en temps. Un coup sur trois
 //                       tout en bas, aucun tout en haut.
+//
+// Ces comportements ne viennent pas d'un seul niveau global : chacun est un
+// rang de l'une des quatre acquises de l'adversaire (lecture, mémoire,
+// défausse, maîtrise — voir Rivals.h). Son tempérament (audace, prudence,
+// vigilance, calme) ne débloque jamais un rang : il ne fait que régler les
+// paramètres continus (hardiesse d'enchère, fréquence des bourdes). Deux
+// adversaires au même total d'expérience ne jouent donc pas pareil.
 
 struct Skill {
     qreal mastery = 0.0;
-    qreal blunder = 0.0;         // la mauvaise carte, exprès
-    bool readsTable = false;     // sait qui tient le pli, et de quel camp
-    bool countsCards = false;    // se souvient de tout ce qui est passé
-    bool guessesPartner = false; // devine l'appelé caché d'après les cartes données
-    bool weighsHand = false;     // pèse la main avant de prendre, et écarte pour couper
-    bool savesPetit = false;     // protège son petit et le mène au bout
-    qreal boldness = 1.0;        // avec quelle facilité il prend
+    qreal blunder = 0.0;         // la mauvaise carte, exprès (Maîtrise)
+    bool readsTable = false;     // sait qui tient le pli, et de quel camp (Mémoire)
+    bool countsCards = false;    // se souvient de tout ce qui est passé (Mémoire)
+    bool guessesPartner = false; // devine l'appelé caché d'après les cartes données (Mémoire)
+    bool weighsHand = false;     // pèse la main avant de prendre (Lecture)
+    bool cutsSuit = false;       // écarte pour se faire une coupe (Défausse)
+    bool savesPetit = false;     // protège son petit et le mène au bout (Maîtrise)
+    qreal boldness = 1.0;        // avec quelle facilité il prend (Audace)
+    int vigilance = 1;           // tempérament : devine l'appelé caché tôt
+    int prudence = 1;            // tempérament : retient sa poignée
 };
 
-Skill skillFor(int xp);
+// Le skillset d'un adversaire : ses quatre acquises rang par rang (alimentées
+// par ses donnes) et son tempérament (quatre innées, qui décalent chaque rang
+// d'au plus un). Voir Rivals.h.
+Skill skillFor(const Learning &learning, const Innates &innates);
 Skill bestSkill();               // celui avec lequel le bouton Conseil pense
 
 // Ce que la main vaut pour prendre, en demi-points de prise.

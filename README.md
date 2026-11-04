@@ -202,6 +202,18 @@ est une liste de choses qu'un joueur fait ou ne fait pas.
 | Intermédiaire | 200 – 599 | pèse sa main avant de prendre — les bouts, la longueur d'atout, les hauts atouts, les rois, les couleurs courtes ; vide une enseigne à l'écart pour pouvoir y couper ; protège son petit et le pose sur un pli déjà acquis plutôt que de le garder jusqu'au dernier, où il se perd ; charge le pli quand il est à son camp |
 | Expert | 600 – 1200 | se souvient des soixante-dix-huit cartes, sait donc combien d'atouts restent dehors et laquelle de ses cartes est devenue maîtresse ; tire l'atout quand il a pris, et se bat pour la main tant qu'il lui en reste à tirer ; laisse filer un pli qui ne vaut rien plutôt que d'y dépenser une maîtresse ; devine l'appelé caché à qui donne des cartes au preneur ; et ne fait plus de bourde |
 
+Au-delà du niveau, chacun a un **tempérament** — audace, prudence, vigilance,
+calme, quatre niveaux chacun, fixés une fois pour toutes — qui ne le rend ni
+meilleur ni moins bon mais reconnaissable : un casse-cou prend sur des mains
+que le mesuré laisse passer. Et ce qu'il a appris se compte **acquise par
+acquise** — lecture de la main, mémoire du jeu, choix de l'écart, maîtrise —
+quatre rangs chacune, alimentées par ce qu'il a fait en donne (lire sa main,
+suivre le jeu, faire son écart, tenir son contrat) : l'aperçu de sa carte au
+menu les liste avec leur rang. Le tempérament ne débloque presque jamais un
+rang : il règle la hardiesse d'enchère (audace), la fréquence des bourdes
+(calme), la retenue sur la poignée (prudence), et la devinette de l'appelé
+caché (vigilance).
+
 **L'enchère est réglée sur ce qu'une main rapporte et non sur sa fréquence.** Le
 gain moyen du preneur a été mesuré sur quelques milliers de donnes, main par
 main : il passe du négatif au positif autour de dix points de prise, et c'est là

@@ -13,7 +13,10 @@
 // qu'on battait en mars est une table qui vous bat en juin.
 //
 // Ce qu'ils savent est un seul chiffre, leur expérience, qui monte un peu à
-// chaque donne jouée et un peu plus à chaque donne gagnée. Trois noms sont
+// chaque donne jouée et un peu plus à chaque donne gagnée — et ce chiffre est
+// réparti entre quatre acquises (lecture, mémoire, défausse, maîtrise) selon
+// ce que chaque donne leur a demandé. Chacun a aussi un tempérament (audace,
+// prudence, vigilance, calme) qui ne change pas. Trois noms sont
 // posés sur ses plages, parce que « niveau 437 » n'est pas une chose qu'on a
 // envie de lire :
 //
@@ -40,6 +43,74 @@ enum class Level { Debutant, Intermediaire, Expert };
 
 inline constexpr int kMaxExperience = 1200;
 
+// ---------------------------------------------------------------------------
+// Ce qu'il est, et ce qu'il a appris.
+//
+// Inspiré de cardsol : chaque adversaire a un tempérament (quatre innées,
+// quatre niveaux, invariables) et quatre savoir-faire (quatre acquises,
+// quatre rangs chacune, alimentés par ce qu'il a fait en donne). Les rangs
+// déterminent la force, les innées le style : une innée ne débloque jamais
+// un rang, elle ne fait que régler les paramètres continus (hardiesse,
+// fréquence des bourdes), de sorte qu'aucun tempérament ne fait d'un
+// débutant un expert.
+
+// Le tempérament : propension au risque, réticence à se séparer de ses
+// cartes, attention au jeu des autres, sang-froid.
+enum class Innate { Audace, Prudence, Vigilance, Calme };
+
+// Le savoir-faire : analyse de sa main, mémorisation du jeu, choix de
+// l'écart, absence d'erreurs.
+enum class Learned { Lecture, Memoire, Defausse, Maitrise };
+
+inline constexpr int kInnateCount = 4;
+inline constexpr int kLearnedCount = 4;
+inline constexpr int kInnateTop = 3;      // niveaux 0 à 3
+inline constexpr int kRungCount = 4;      // rangs 0 à 3
+inline constexpr int kPoolCeiling = 300;  // xp max par acquise ; 4 × 300 = 1200
+
+struct Innates {
+    int level[kInnateCount] = {1, 1, 1, 1};
+
+    int at(Innate which) const { return level[int(which)]; }
+    void set(Innate which, int value) { level[int(which)] = qBound(0, value, kInnateTop); }
+    bool operator==(const Innates &other) const;
+    bool operator!=(const Innates &other) const { return !(*this == other); }
+};
+
+struct Pools {
+    int xp[kLearnedCount] = {0, 0, 0, 0};
+
+    int at(Learned which) const { return xp[int(which)]; }
+    void set(Learned which, int value) { xp[int(which)] = qBound(0, value, kPoolCeiling); }
+    int total() const;
+};
+
+// Le tempérament d'un adversaire : tiré de son id, donc aléatoire en
+// apparence et stable pour chacun des six.
+Innates innatesFor(const QString &rivalId);
+
+// Rang atteint dans une acquise (0 à 3). Paliers {0, 50, 130, 220} : à xp
+// également réparti, rang 1 tombe vers 200 xp (intermédiaire) et rang 2 vers
+// 520 xp (expert), comme les anciens paliers de niveau.
+int rungOf(int poolXp);
+// Progression continue de zéro à un dans l'acquise, pour les paramètres qui
+// varient sans palier.
+qreal depthOf(int poolXp);
+// Vitesse d'acquisition d'une acquise chez cet adversaire : l'innée jumelée
+// accélère l'apprentissage sans s'y substituer.
+qreal learnRate(const Innates &innates, Learned which);
+// Répartit une expérience globale sur les quatre acquises, pondérée par le
+// tempérament : sert à migrer les profils écrits avant les pools.
+Pools poolsFromXp(int xp, const Innates &innates);
+
+// Libellés : nom de l'innée et de son niveau, nom de l'acquise et de son
+// rang, et la phrase « ce qu'il est » fondée sur l'innée dominante.
+QString innateName(Innate which);
+QString innateLevelName(Innate which, int level);
+QString learnedName(Learned which);
+QString rungName(Learned which, int rung);
+QString temperamentLine(const Innates &innates);
+
 struct Rival {
     QString id;
     QString name;
@@ -55,6 +126,7 @@ const Rival &rivalById(const QString &id);
 // Ce qu'il a fait sous ce profil.
 struct Learning {
     int xp = 0;
+    Pools pools;              // l'xp réparti dans les quatre acquises
     int donnesPlayed = 0;
     int donnesWon = 0;        // les donnes où son camp a marqué le plus
     int contractsMade = 0;    // les donnes qu'il a prises et réussies
