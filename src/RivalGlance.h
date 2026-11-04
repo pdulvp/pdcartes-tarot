@@ -16,8 +16,8 @@ class QVBoxLayout;
 // mais pas l'adversaire qu'on a sous le pointeur, et il n'y a pas de fiche où
 // aller le lire.
 //
-// L'aperçu y répond sous une forme réduite, sans aucun élément cliquable : sa
-// petite phrase et son tempérament en pastilles d'un côté (ce qu'il est), son
+// L'aperçu y répond sous une forme réduite, sans aucun élément cliquable : son
+// tempérament en pastilles d'un côté (ce qu'il est), son
 // niveau, ses quatre acquises en rangs et son palmarès de l'autre (ce qu'il a
 // appris) — huit lignes de compétences à la manière de cardsol, lisibles d'un
 // coup d'œil.

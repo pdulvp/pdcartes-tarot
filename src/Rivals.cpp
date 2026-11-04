@@ -15,22 +15,16 @@ const QVector<Rival> &builtRivals() {
     // écartés exprès : la première table à laquelle on s'assoit doit contenir
     // quelqu'un qu'on peut battre et quelqu'un qu'on ne peut pas.
     static const QVector<Rival> list = {
-        {QStringLiteral("lulu"), QCoreApplication::translate("rivals", "Lulu"),
-         QCoreApplication::translate("rivals", "Prend sur cinq atouts, et le regrette"), 196, 0,
+        {QStringLiteral("lulu"), QCoreApplication::translate("rivals", "Lulu"), 196, 0,
          4},
-        {QStringLiteral("nestor"), QCoreApplication::translate("rivals", "Nestor"),
-         QCoreApplication::translate("rivals", "Garde ses rois jusqu'au dernier pli"), 34, 70,
+        {QStringLiteral("nestor"), QCoreApplication::translate("rivals", "Nestor"), 34, 70,
          3},
-        {QStringLiteral("zephyr"), QCoreApplication::translate("rivals", "Zéphyr"),
-         QCoreApplication::translate("rivals", "Charge dès que le pli est à sa défense"), 268, 230,
+        {QStringLiteral("zephyr"), QCoreApplication::translate("rivals", "Zéphyr"), 268, 230,
          5},
-        {QStringLiteral("prune"), QCoreApplication::translate("rivals", "Prune"),
-         QCoreApplication::translate("rivals", "Pèse sa main, et passe les mains moyennes"), 328,
+        {QStringLiteral("prune"), QCoreApplication::translate("rivals", "Prune"), 328,
          330, 1},
-        {QStringLiteral("barnabe"), QCoreApplication::translate("rivals", "Barnabé"),
-         QCoreApplication::translate("rivals", "Tire l'atout dès qu'il a pris"), 140, 440, 2},
-        {QStringLiteral("oriane"), QCoreApplication::translate("rivals", "Oriane"),
-         QCoreApplication::translate("rivals", "Sait ce qui reste dehors, et depuis quand"), 352,
+        {QStringLiteral("barnabe"), QCoreApplication::translate("rivals", "Barnabé"), 140, 440, 2},
+        {QStringLiteral("oriane"), QCoreApplication::translate("rivals", "Oriane"), 352,
          660, 0},
     };
     return list;

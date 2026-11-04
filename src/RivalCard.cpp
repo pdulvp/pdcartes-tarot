@@ -213,7 +213,8 @@ void RivalCard::paintEvent(QPaintEvent *) {
     painter.setPen(asideInk);
     const QFontMetricsF asideMetrics(aside);
     painter.drawText(QRectF(left, y, wide, asideMetrics.height()),
-                     Qt::AlignLeft | Qt::AlignVCenter, who.blurb);
+                     Qt::AlignLeft | Qt::AlignVCenter,
+                     temperamentLine(rivalInnate(who.id)));
     y += asideMetrics.height() + 5.0;
 
     // Les étoiles, la jauge, et le chiffre derrière elles -- parce que la

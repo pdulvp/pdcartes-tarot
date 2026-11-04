@@ -142,7 +142,6 @@ QString temperamentLine(const Innates &innates);
 struct Rival {
     QString id;
     QString name;
-    QString blurb;       // ce qu'il est à table, en une ligne
     int hue;             // sa couleur, portée sur sa plaque et sur ses cartes
     int startXp;         // l'expérience avec laquelle il s'assoit, et où on le remet
     int emblem;          // la marque de son médaillon, de 0 à 5

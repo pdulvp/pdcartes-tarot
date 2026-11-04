@@ -31,11 +31,6 @@ constexpr int kBetween = 24;
 constexpr int kTight = 1;
 constexpr qreal kCorner = 10.0;
 
-// Largeur laissée à la petite phrase de l'adversaire : au-delà, elle passe à
-// la ligne. Une phrase sur une seule ligne donnerait un panneau large comme la
-// table.
-constexpr int kBlurbWide = 196;
-
 // Décalage entre l'aperçu et l'élément survolé, afin que leurs bords ne se
 // touchent pas.
 constexpr int kOffset = 6;
@@ -176,9 +171,6 @@ void RivalGlance::buildWhoHeIs(QVBoxLayout *column) {
 
     column->addWidget(dialogSectionHeading(this, tr("Ce qu'il est")));
     column->addSpacing(5);
-    // Sa petite phrase, qui est sa façon de jouer en une ligne.
-    column->addWidget(glanceLine(this, who.blurb, false, kBlurbWide));
-    column->addSpacing(4);
     // Son tempérament : quatre innées, quatre niveaux, en pastilles colorées
     // comme dans cardsol — chaudes ici, froides pour ce qu'il a appris.
     const Innates innates = rivalInnate(m_rivalId);

@@ -30,7 +30,7 @@ public:
 
     // Posée sur le drap plutôt que sur le fond pâle d'un dialogue : la carte
     // devient sombre et bordée d'or, et son encre passe à celle du tapis.
-    // Elle garde ce qu'elle dit -- sa petite phrase, son palmarès -- faute
+    // Elle garde ce qu'elle dit -- son tempérament, son palmarès -- faute
     // d'une fiche où le dire ailleurs.
     void setOnFelt(bool onFelt);
 
