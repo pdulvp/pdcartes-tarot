@@ -166,6 +166,9 @@ add_library(pdcartes-tarot-core OBJECT
     # demandent l'une et l'autre au survol.
     src/RivalGlance.cpp
     src/RivalGlance.h
+    # La fiche d'un adversaire, ouverte depuis le menu de sa carte.
+    src/RivalSheet.cpp
+    src/RivalSheet.h
     # Une ligne de compétence dans l'aperçu d'un adversaire, à la manière de
     # cardsol.
     src/SkillRow.cpp

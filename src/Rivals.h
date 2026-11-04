@@ -85,14 +85,26 @@ struct Pools {
     int total() const;
 };
 
-// Le tempérament d'un adversaire : tiré de son id, donc aléatoire en
-// apparence et stable pour chacun des six.
-Innates innatesFor(const QString &rivalId);
+// Le tempérament d'un adversaire, gardé par profil. Sans tempérament écrit,
+// c'est celui tiré du hash de son id : aléatoire en apparence, et stable pour
+// chacun des six — c'est aussi celui auquel « Comme à son arrivée » revient.
+Innates rivalInnate(const QString &rivalId);
+Innates rivalInnateAsArrived(const QString &rivalId);
+// Écrit le tempérament sous ce profil, et remet l'expérience à zéro : ce qui
+// a été appris avec un tempérament n'est pas transposable à un autre.
+void setRivalInnate(const QString &rivalId, const Innates &innates);
+// Remet xp, pools et palmarès à zéro, mais garde le nom et le tempérament.
+void resetRivalExperience(const QString &rivalId);
 
 // Rang atteint dans une acquise (0 à 3). Paliers {0, 50, 130, 220} : à xp
 // également réparti, rang 1 tombe vers 200 xp (intermédiaire) et rang 2 vers
 // 520 xp (expert), comme les anciens paliers de niveau.
 int rungOf(int poolXp);
+int rungFloor(int rung);
+// Expérience manquante pour le rang suivant ; zéro au dernier rang.
+int rungGap(int poolXp);
+// Progression de zéro à un à l'intérieur du rang courant, pour la jauge.
+qreal rungProgress(int poolXp);
 // Progression continue de zéro à un dans l'acquise, pour les paramètres qui
 // varient sans palier.
 qreal depthOf(int poolXp);

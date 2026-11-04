@@ -287,7 +287,7 @@ void TablePage::startMatch(const GameSettings &settings) {
     for (const SeatSpec &spec : seats) {
         m_skills.append(spec.rivalId.isEmpty()
                             ? bestSkill()
-                            : skillFor(learningFor(spec.rivalId), innatesFor(spec.rivalId)));
+                            : skillFor(learningFor(spec.rivalId), rivalInnate(spec.rivalId)));
     }
 
     // La vue regarde la partie avant que la première donne soit distribuée :
@@ -632,7 +632,7 @@ void TablePage::onDonneFinished() {
         for (int at = 0; at < m_game->seatCount() && at < m_skills.size(); ++at) {
             const Seat &seat = m_game->seat(at);
             if (seat.human()) continue;
-            m_skills[at] = skillFor(learningFor(seat.rivalId), innatesFor(seat.rivalId));
+            m_skills[at] = skillFor(learningFor(seat.rivalId), rivalInnate(seat.rivalId));
         }
     }
 

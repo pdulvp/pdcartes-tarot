@@ -71,6 +71,7 @@ private:
 
     void showRivalMenu(RivalCard *card, const QPoint &where);
     void renameRival(const QString &rivalId);
+    void openRivalSheet(const QString &rivalId);
     void askResetRival(const QString &rivalId);
 
     // Le tapis, peint une fois : la page défile, et refaire le tissage à

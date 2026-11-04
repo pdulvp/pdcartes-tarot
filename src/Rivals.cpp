@@ -78,7 +78,7 @@ int Pools::total() const {
     return sum;
 }
 
-Innates innatesFor(const QString &rivalId) {
+Innates rivalInnateAsArrived(const QString &rivalId) {
     const quint32 h = hashOf(rivalById(rivalId).id);
     Innates innates;
     for (int i = 0; i < kInnateCount; ++i) {
@@ -87,13 +87,84 @@ Innates innatesFor(const QString &rivalId) {
     return innates;
 }
 
-int rungOf(int poolXp) {
+Innates rivalInnate(const QString &rivalId) {
+    const Rival &who = rivalById(rivalId);
+    const Innates arrived = rivalInnateAsArrived(who.id);
+    QSettings settings;
+    Innates innates = arrived;
+    for (int i = 0; i < kInnateCount; ++i) {
+        innates.level[i] =
+            settings.value(rivalKey(currentProfile(), who.id, QStringLiteral("innee%1").arg(i)),
+                           arrived.level[i])
+                .toInt();
+    }
+    for (int i = 0; i < kInnateCount; ++i) {
+        innates.level[i] = qBound(0, innates.level[i], kInnateTop);
+    }
+    return innates;
+}
+
+void setRivalInnate(const QString &rivalId, const Innates &innates) {
+    const Rival &who = rivalById(rivalId);
+    const int slot = currentProfile();
+    // Aucun changement effectif, aucune perte : ouvrir puis refermer la fiche
+    // ne doit pas entraîner la perte de l'expérience.
+    if (rivalInnate(who.id) == innates) return;
+
+    QSettings settings;
+    for (int i = 0; i < kInnateCount; ++i) {
+        settings.setValue(rivalKey(slot, who.id, QStringLiteral("innee%1").arg(i)),
+                          innates.level[i]);
+    }
+    settings.sync();
+    // L'expérience acquise est annulée, ayant été obtenue avec un autre
+    // tempérament.
+    resetRivalExperience(who.id);
+}
+
+void resetRivalExperience(const QString &rivalId) {
+    const Rival &who = rivalById(rivalId);
+    const int slot = currentProfile();
+    QSettings settings;
+    // Sont remis à zéro : xp, les quatre pools et le palmarès. Le nom et le
+    // tempérament ne relèvent pas de l'expérience.
+    settings.remove(rivalKey(slot, who.id, QStringLiteral("xp")));
+    for (int i = 0; i < kLearnedCount; ++i) {
+        settings.remove(rivalKey(slot, who.id, QStringLiteral("pool%1").arg(i)));
+    }
+    settings.remove(rivalKey(slot, who.id, QStringLiteral("donnes")));
+    settings.remove(rivalKey(slot, who.id, QStringLiteral("donnesGagnees")));
+    settings.remove(rivalKey(slot, who.id, QStringLiteral("contrats")));
+    settings.remove(rivalKey(slot, who.id, QStringLiteral("parties")));
+    settings.remove(rivalKey(slot, who.id, QStringLiteral("partiesGagnees")));
+}
+
+int rungFloor(int rung) {
     constexpr int kFloors[kRungCount] = {0, 50, 130, 220};
+    return kFloors[qBound(0, rung, kRungCount - 1)];
+}
+
+int rungOf(int poolXp) {
+    const int xp = qBound(0, poolXp, kPoolCeiling);
     int rung = 0;
     for (int i = 1; i < kRungCount; ++i) {
-        if (poolXp >= kFloors[i]) rung = i;
+        if (xp >= rungFloor(i)) rung = i;
     }
     return rung;
+}
+
+int rungGap(int poolXp) {
+    const int rung = rungOf(poolXp);
+    if (rung >= kRungCount - 1) return 0;
+    return rungFloor(rung + 1) - qBound(0, poolXp, kPoolCeiling);
+}
+
+qreal rungProgress(int poolXp) {
+    const int rung = rungOf(poolXp);
+    const int bottom = rungFloor(rung);
+    const int top = rung < kRungCount - 1 ? rungFloor(rung + 1) : kPoolCeiling;
+    if (top <= bottom) return 1.0;
+    return qBound(0.0, qreal(qBound(bottom, poolXp, top) - bottom) / (top - bottom), 1.0);
 }
 
 qreal depthOf(int poolXp) {
@@ -272,7 +343,7 @@ Learning learningFor(const QString &rivalId, int slot) {
                     .toInt();
         }
     } else {
-        learning.pools = poolsFromXp(learning.xp, innatesFor(who.id));
+        learning.pools = poolsFromXp(learning.xp, rivalInnate(who.id));
     }
     learning.donnesPlayed =
         settings.value(rivalKey(slot, who.id, QStringLiteral("donnes")), 0).toInt();

@@ -3,6 +3,8 @@
 #include <QIcon>
 
 class QMenu;
+class QToolButton;
+class QWidget;
 
 // Habille un menu contextuel aux couleurs de la table.
 //
@@ -25,3 +27,9 @@ void dressMenu(QMenu *menu);
 // Les noms sont essayés dans l'ordre, des deux côtés : un bureau qui ne
 // connaît que l'ancienne graphie d'un nom a quand même son icône.
 QIcon appIcon(const QStringList &names, const QColor &ink);
+
+// Un petit bouton à icône, dans une boîte de dialogue : l'icône du bureau
+// quand il en a une, sinon celle que le jeu emporte, et à défaut le texte
+// donné en repli.
+QToolButton *iconButton(QWidget *parent, const QStringList &iconNames, const QString &fallback,
+                        const QString &tip);

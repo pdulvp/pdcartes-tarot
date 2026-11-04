@@ -9,6 +9,7 @@
 #include "Palette.h"
 #include "Profiles.h"
 #include "RivalCard.h"
+#include "RivalSheet.h"
 #include "Rivals.h"
 #include "Tables.h"
 #include "TileButton.h"
@@ -362,6 +363,7 @@ void TablePicker::showRivalMenu(RivalCard *card, const QPoint &where) {
                                                      : tr("Inviter %1 à la table").arg(called));
     menu.addSeparator();
     QAction *rename = menu.addAction(tr("Renommer…"));
+    QAction *sheet = menu.addAction(tr("Sa fiche…"));
     menu.addSeparator();
     QAction *reset = menu.addAction(tr("Niveau de départ"));
     // Rien à remettre quand il n'a rien appris : l'entrée le dit en étant
@@ -376,9 +378,17 @@ void TablePicker::showRivalMenu(RivalCard *card, const QPoint &where) {
         card->setInvited(!card->invited());
     } else if (chosen == rename) {
         renameRival(who.id);
+    } else if (chosen == sheet) {
+        openRivalSheet(who.id);
     } else if (chosen == reset) {
         askResetRival(who.id);
     }
+}
+
+void TablePicker::openRivalSheet(const QString &rivalId) {
+    RivalSheet sheet(rivalId, this);
+    connect(&sheet, &RivalSheet::changed, this, [this] { reread(); });
+    sheet.exec();
 }
 
 void TablePicker::renameRival(const QString &rivalId) {

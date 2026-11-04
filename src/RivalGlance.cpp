@@ -181,7 +181,7 @@ void RivalGlance::buildWhoHeIs(QVBoxLayout *column) {
     column->addSpacing(4);
     // Son tempérament : quatre innées, quatre niveaux, en pastilles colorées
     // comme dans cardsol — chaudes ici, froides pour ce qu'il a appris.
-    const Innates innates = innatesFor(m_rivalId);
+    const Innates innates = rivalInnate(m_rivalId);
     for (int i = 0; i < kInnateCount; ++i) {
         const Innate which = Innate(i);
         const InnateSpec &spec = innateSpec(which);

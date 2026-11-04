@@ -209,7 +209,9 @@ que le mesuré laisse passer. Et ce qu'il a appris se compte **acquise par
 acquise** — lecture de la main, mémoire du jeu, choix de l'écart, maîtrise —
 quatre rangs chacune, alimentées par ce qu'il a fait en donne (lire sa main,
 suivre le jeu, faire son écart, tenir son contrat) : l'aperçu de sa carte au
-menu les liste avec leur rang. Le tempérament ne débloque presque jamais un
+menu les liste avec leur rang, et sa fiche (« Sa fiche… » au clic droit)
+permet de changer son tempérament — ce qui lui fait tout réapprendre — ou de
+remettre son expérience à zéro. Le tempérament ne débloque presque jamais un
 rang : il règle la hardiesse d'enchère (audace), la fréquence des bourdes
 (calme), la retenue sur la poignée (prudence), et la devinette de l'appelé
 caché (vigilance).
@@ -328,7 +330,8 @@ autres.
 | `src/VictoryEffect.cpp` | les cartes qui s'envolent et le feu d'artifice |
 | `src/TablePicker.cpp` | le menu d'ouverture : les tables, les six, et leur petit menu |
 | `src/RivalCard.cpp` | la carte d'un joueur, au menu d'ouverture |
-| `src/SkillRow.cpp` | une ligne de compétence (pastilles, rang) dans l'aperçu d'un adversaire, à la manière de cardsol |
+| `src/SkillRow.cpp` | une ligne de compétence (pastilles, rang, jauge) dans l'aperçu et la fiche d'un adversaire, à la manière de cardsol |
+| `src/RivalSheet.cpp` | la fiche d'un adversaire (« Sa fiche… » au menu de sa carte) : tempérament éditable, acquises en jauge, remises à zéro |
 | `src/ProfileChip.cpp` | la plaque du profil, dans la bande du haut |
 | `src/HelpDialog.cpp` | les règles, en entier, dans la fenêtre |
 | `src/MainWindow.cpp` | la fenêtre : la barre du haut et les deux pages |

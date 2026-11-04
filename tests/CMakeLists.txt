@@ -16,6 +16,7 @@ set(_model_tests
     hidecall     # l'appel reste caché jusqu'à la carte appelée jouée
     guess        # le cerveau respecte l'appel caché, devinette comprise
     skills       # tempérament et acquises des six, migration des profils
+    sheet        # fiche d'un adversaire : édition du tempérament, remises à zéro
 )
 
 foreach(_t IN LISTS _model_tests)

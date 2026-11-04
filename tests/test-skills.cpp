@@ -1,4 +1,4 @@
-// Tempérament + quatre acquises (#13) : innatesFor stable, migration des
+// Tempérament + quatre acquises (#13) : rivalInnate stable, migration des
 // pools, skillFor par rangs, répartition des gains de donne, et parité avec
 // les anciens niveaux pour les six partants.
 #include "Brain.h"
@@ -15,11 +15,11 @@ int main(int argc, char **argv) {
     QCoreApplication::setApplicationName("pdcartes-tarot");
     int failures = 0;
 
-    // 1. innatesFor : stable, dans les bornes, et les six se ressemblent pas.
+    // 1. rivalInnate : stable, dans les bornes, et les six se ressemblent pas.
     {
         for (const Rival &r : rivals()) {
-            const Innates a = innatesFor(r.id);
-            const Innates b = innatesFor(r.id);
+            const Innates a = rivalInnate(r.id);
+            const Innates b = rivalInnate(r.id);
             if (a != b) { std::printf("ECHEC innates instable pour %s\n", qPrintable(r.id)); ++failures; }
             for (int i = 0; i < kInnateCount; ++i) {
                 if (a.level[i] < 0 || a.level[i] > kInnateTop) {
@@ -29,14 +29,14 @@ int main(int argc, char **argv) {
             }
         }
         bool allSame = true;
-        const Innates first = innatesFor(rivals().first().id);
+        const Innates first = rivalInnate(rivals().first().id);
         for (const Rival &r : rivals()) {
-            if (innatesFor(r.id) != first) allSame = false;
+            if (rivalInnate(r.id) != first) allSame = false;
         }
         if (allSame) { std::printf("ECHEC les six ont le même tempérament\n"); ++failures; }
         std::printf("innées: stables, bornées, différentes d'un rival à l'autre\n");
         for (const Rival &r : rivals()) {
-            const Innates in = innatesFor(r.id);
+            const Innates in = rivalInnate(r.id);
             std::printf("  %s: audace=%d prudence=%d vigilance=%d calme=%d (%s)\n", qPrintable(r.id),
                         in.at(Innate::Audace), in.at(Innate::Prudence), in.at(Innate::Vigilance),
                         in.at(Innate::Calme), qPrintable(temperamentLine(in)));
@@ -119,8 +119,8 @@ int main(int argc, char **argv) {
         for (const Rival &r : rivals()) {
             Learning l;
             l.xp = r.startXp;
-            l.pools = poolsFromXp(r.startXp, innatesFor(r.id));
-            const Skill s = skillFor(l, innatesFor(r.id));
+            l.pools = poolsFromXp(r.startXp, rivalInnate(r.id));
+            const Skill s = skillFor(l, rivalInnate(r.id));
             const Level level = levelOf(r.startXp);
             std::printf("  %s (xp %d, %s): weighs=%d reads=%d counts=%d cuts=%d petit=%d guess=%d blunder=%.2f bold=%.2f\n",
                         qPrintable(r.id), r.startXp, qPrintable(levelName(level)),

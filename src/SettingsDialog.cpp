@@ -100,34 +100,6 @@ QLabel *asideLabel(QWidget *parent, const QString &text) {
 // loin de la liste qu'ils relisaient. Ici ils sont contre elle, et ce qu'ils
 // font tient dans leur infobulle -- sauf sur un bureau dont le thème ne porte
 // pas ces icônes, où chacun reprend son mot.
-QToolButton *iconButton(QWidget *parent, const QStringList &iconNames, const QString &fallback,
-                        const QString &tip) {
-    const Palette &scheme = currentPalette();
-    auto *button = new QToolButton(parent);
-    button->setToolTip(tip);
-    button->setCursor(Qt::PointingHandCursor);
-    button->setFocusPolicy(Qt::NoFocus);
-    button->setIconSize(QSize(17, 17));
-
-    const QIcon icon = appIcon(iconNames, scheme.surfaceText);
-    if (icon.isNull()) {
-        button->setText(fallback);
-        button->setToolButtonStyle(Qt::ToolButtonTextOnly);
-    } else {
-        button->setIcon(icon);
-        button->setToolButtonStyle(Qt::ToolButtonIconOnly);
-        button->setFixedSize(32, 30);
-    }
-    button->setStyleSheet(QStringLiteral("QToolButton { background: %1; color: %2;"
-                                         " border: 1px solid %3; border-radius: 6px;"
-                                         " padding: 3px 7px 5px 7px; }"
-                                         "QToolButton:hover { border: 1px solid %4; }"
-                                         "QToolButton:pressed { background: %5; }")
-                              .arg(scheme.field.name(), scheme.surfaceText.name(),
-                                   scheme.edge.name(), scheme.accent.name(),
-                                   blendColours(scheme.field, scheme.accent, 0.18).name()));
-    return button;
-}
 
 // L'aperçu d'un dos, dessiné comme la table le dessinera.
 //
