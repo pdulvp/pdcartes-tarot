@@ -93,8 +93,8 @@ public:
 
     // La taille des cartes, en pour cent.
     //
-    // Un jeu installé apporte des images d'une finesse donnée -- les
-    // CARDS.DLL de Windows font 71 sur 96 -- et une figure réduite au quart de
+    // Un jeu installé apporte des images d'une taille donnée et une figure 
+    // réduite au quart de
     // cela sur le tapis n'est plus qu'un bruit de couleurs. Aucun filtre ne
     // rend des pixels qui n'existent pas : ce qu'il faut, c'est pouvoir les
     // dessiner plus grandes. Le zoom tire sur toutes les tailles de carte à la

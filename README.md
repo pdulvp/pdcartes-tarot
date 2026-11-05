@@ -271,10 +271,7 @@ au quart de cela sur le tapis n'est plus qu'un bruit de couleurs. La **taille de
 cartes** se règle donc, de 80 à 200 %, dans les réglages ou à `Ctrl` + molette
 pendant la partie.
 
-Ces fichiers se fabriquent avec l'atelier, qui est dans `../cartes-set-creator/`
-et qui sait aussi ouvrir les `CARDS.DLL` de Windows. Le dossier est commun au
-rami et à la belote : un jeu déposé une fois sert aux trois, et chacun n'y
-montre que les jeux de son genre.
+Ces fichiers se fabriquent avec l'atelier, qui est dans `https://github.com/pdulvp/pdcartes-barquette`
 
 ## La couleur du drap
 

@@ -262,7 +262,7 @@ sous lequel on joue et nulle part ailleurs.</p>
 
 <p>Les cartes que le jeu dessine lui-même ne sont pas les seules : les réglages
 listent les tarots posés dans le dossier des cartes, et l'atelier sait en
-fabriquer — il ouvre aussi les <b>CARDS.DLL</b> de Windows. Sous le jeu choisi,
+fabriquer. Sous le jeu choisi,
 une main d'exemple montre les quatre figures, les trois bouts et une carte
 basse, et les dos s'offrent en vignettes sur leur propre page : un jeu de
 cartes se juge sur l'image et non sur son nom. Cette page-là a sa propre liste
