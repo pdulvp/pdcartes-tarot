@@ -363,6 +363,14 @@ foreach(_paper LICENSE-CC-BY-SA-3.0 AUTHORS PROVENANCE)
     endif()
 endforeach()
 
+# La licence du programme lui-même, dans le paquet Debian à côté de celles
+# des fontes et des icônes : le nom `copyright` est celui que la politique
+# de Debian attend à /usr/share/doc/pdcartes-tarot/copyright.
+if(NOT WIN32)
+    install(FILES LICENSE.md DESTINATION ${CMAKE_INSTALL_DOCDIR}
+            RENAME copyright)
+endif()
+
 # Les jeux de cartes livrés avec le programme.
 #
 # Ils ne sont pas compilés dans le binaire mais installés en fichiers, comme
